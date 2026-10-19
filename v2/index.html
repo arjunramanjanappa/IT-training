@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>IT PMO Kanban</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<script>
+  // Apply a saved theme before first paint to avoid a flash
+  try { const t = localStorage.getItem("pmo-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<style>
+  /* =========================================================
+     Design tokens
+     Direction (ui-ux-pro-max, "Productivity Tool"): flat design +
+     micro-interactions, teal primary + action orange, Plus Jakarta Sans,
+     quick 150ms feedback, keyboard shortcuts, dense dashboard spacing.
+     ========================================================= */
+  :root {
+    --primary:        #0f766e;  /* teal-700: 5.4:1 on white */
+    --primary-hover:  #115e59;
+    --primary-ink:    #ffffff;
+    --primary-soft:   #f0fdfa;
+    --primary-line:   #99f6e4;
+    --accent:         #ea580c;  /* action orange: focus + attention */
+
+    --bg:            #f5f7f8;
+    --surface:       #ffffff;
+    --surface-2:     #f8fafb;
+    --column:        #eef2f3;
+    --border:        #e2e8ea;
+    --border-strong: #cbd5d8;
+    --text:          #0f172a;
+    --text-2:        #475569;
+    --text-3:        #5f6f80;
+
+    --critical: #dc2626; --critical-bg: #fef2f2; --critical-bd: #fecaca;
+    --high:     #c2410c; --high-bg:     #fff7ed; --high-bd:     #fed7aa;
+    --medium:   #1d4ed8; --medium-bg:   #eff6ff; --medium-bd:   #bfdbfe;
+    --low:      #475569; --low-bg:      #f1f5f9; --low-bd:      #cbd5e1;
+
+    --st-backlog:  #94a3b8;
+    --st-progress: #2563eb;
+    --st-blocked:  #ea580c;
+    --st-done:     #16a34a;
+
+    --toast-bg: #0f172a; --toast-ink: #f1f5f9;
+    --scrim: rgba(15, 23, 42, 0.4);
+
+    --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px;
+    --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-pill: 999px;
+
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.10);
+    --shadow-xl: 0 24px 48px -12px rgba(15, 23, 42, 0.28);
+
+    --font: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --fast: 150ms;
+  }
+
+  /* Dark tokens: follow the OS unless the user picked light, or picked dark */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #2dd4bf; --primary-hover: #5eead4; --primary-ink: #042f2e;
+      --primary-soft: #0f2a29; --primary-line: #134e4a; --accent: #fb923c;
+      --bg: #0b1114; --surface: #121b1f; --surface-2: #162227; --column: #0e171a;
+      --border: #22323a; --border-strong: #31454e;
+      --text: #e7eef0; --text-2: #aebcc2; --text-3: #8a9ba3;
+      --critical: #f87171; --critical-bg: #3a1616; --critical-bd: #6b2424;
+      --high: #fb923c;     --high-bg: #35200f;     --high-bd: #6a3b16;
+      --medium: #93b4ff;   --medium-bg: #15233f;   --medium-bd: #2a4377;
+      --low: #a8b6c4;      --low-bg: #1b262d;      --low-bd: #33434d;
+      --st-backlog: #7b8a99; --st-progress: #60a5fa; --st-blocked: #fb923c; --st-done: #4ade80;
+      --toast-bg: #e7eef0; --toast-ink: #0b1114; --scrim: rgba(0, 0, 0, 0.55);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 6px 16px -4px rgba(0, 0, 0, 0.55);
+      --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --primary: #2dd4bf; --primary-hover: #5eead4; --primary-ink: #042f2e;
+    --primary-soft: #0f2a29; --primary-line: #134e4a; --accent: #fb923c;
+    --bg: #0b1114; --surface: #121b1f; --surface-2: #162227; --column: #0e171a;
+    --border: #22323a; --border-strong: #31454e;
+    --text: #e7eef0; --text-2: #aebcc2; --text-3: #8a9ba3;
+    --critical: #f87171; --critical-bg: #3a1616; --critical-bd: #6b2424;
+    --high: #fb923c;     --high-bg: #35200f;     --high-bd: #6a3b16;
+    --medium: #93b4ff;   --medium-bg: #15233f;   --medium-bd: #2a4377;
+    --low: #a8b6c4;      --low-bg: #1b262d;      --low-bd: #33434d;
+    --st-backlog: #7b8a99; --st-progress: #60a5fa; --st-blocked: #fb923c; --st-done: #4ade80;
+    --toast-bg: #e7eef0; --toast-ink: #0b1114; --scrim: rgba(0, 0, 0, 0.55);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 6px 16px -4px rgba(0, 0, 0, 0.55);
+    --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.7);
+  }
+
+  /* =========================================================
+     Base
+     ========================================================= */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; min-height: 100vh;
+    font-family: var(--font); font-size: 15px; line-height: 1.5;
+    color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, p { margin: 0; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  svg { flex-shrink: 0; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-sm); }
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .skip-link {
+    position: absolute; left: var(--s-4); top: -60px; z-index: 200;
+    padding: var(--s-2) var(--s-4); border-radius: var(--r-md);
+    background: var(--primary); color: var(--primary-ink); font-weight: 700; text-decoration: none;
+  }
+  .skip-link:focus { top: var(--s-3); }
+  .container { max-width: 1480px; margin: 0 auto; padding: 0 var(--s-6); }
+  kbd {
+    display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px;
+    border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 5px;
+    background: var(--surface); color: var(--text-2);
+    font-family: var(--mono); font-size: 11px; font-weight: 600; line-height: 1;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
+    min-height: 40px; padding: 0 var(--s-4);
+    border: 1px solid transparent; border-radius: var(--r-md);
+    background: var(--surface); cursor: pointer; font-weight: 650; font-size: 14px;
+    transition: background-color var(--fast), border-color var(--fast), color var(--fast), transform var(--fast) var(--ease-out);
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--primary); color: var(--primary-ink); }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-primary:disabled { opacity: 0.65; cursor: progress; }
+  .btn-primary kbd { background: transparent; border-color: currentColor; color: inherit; opacity: 0.75; }
+  .btn-secondary { border-color: var(--border-strong); color: var(--text); }
+  .btn-secondary:hover { background: var(--surface-2); border-color: var(--text-3); }
+  .btn-ghost { background: transparent; color: var(--text-2); }
+  .btn-ghost:hover { background: var(--column); color: var(--text); }
+  .btn-sm { min-height: 32px; padding: 0 var(--s-3); font-size: 13px; border-radius: var(--r-sm); }
+  .btn-danger { background: var(--critical); color: #fff; }
+  .btn-danger:hover { filter: brightness(0.92); }
+  .icon-btn {
+    display: inline-grid; place-items: center; width: 32px; height: 32px;
+    border: 0; border-radius: var(--r-sm); background: transparent; color: var(--text-3); cursor: pointer;
+    transition: background-color var(--fast), color var(--fast);
+  }
+  .icon-btn:hover { background: var(--column); color: var(--text); }
+  .icon-btn.is-danger:hover { background: var(--critical-bg); color: var(--critical); }
+
+  /* =========================================================
+     App bar
+     ========================================================= */
+  .appbar {
+    position: sticky; top: 0; z-index: 30;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .appbar-inner { display: flex; align-items: center; gap: var(--s-3); height: 60px; }
+  .wordmark { display: flex; align-items: center; gap: var(--s-3); font-weight: 800; font-size: 16px; letter-spacing: -0.01em; }
+  .wordmark-mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--r-md); background: var(--primary); color: var(--primary-ink); }
+  .wordmark small { font-weight: 500; font-size: 13px; color: var(--text-3); letter-spacing: 0; }
+  .appbar-end { display: flex; align-items: center; gap: var(--s-2); margin-left: auto; }
+  .theme-btn { width: 40px; height: 40px; border: 1px solid var(--border); }
+  .theme-btn .i-sun { display: none; }
+  :root[data-theme="dark"] .theme-btn .i-sun { display: block; }
+  :root[data-theme="dark"] .theme-btn .i-moon { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .theme-btn .i-sun { display: block; }
+    :root:not([data-theme="light"]) .theme-btn .i-moon { display: none; }
+  }
+
+  /* =========================================================
+     Page head + KPIs
+     ========================================================= */
+  .page-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s-5); padding: var(--s-6) 0 var(--s-5); }
+  .eyebrow { display: inline-flex; align-items: center; gap: var(--s-2); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .page-head h1 { margin-top: var(--s-2); font-size: clamp(26px, 3vw, 34px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.1; text-wrap: balance; }
+  .page-head p.lede { margin-top: var(--s-2); color: var(--text-2); max-width: 60ch; }
+  .demo-note {
+    display: inline-flex; align-items: center; gap: var(--s-2); margin-top: var(--s-3);
+    padding: 4px var(--s-3); border-radius: var(--r-pill);
+    background: var(--high-bg); border: 1px solid var(--high-bd); color: var(--high);
+    font-size: 12.5px; font-weight: 600;
+  }
+  .progress-card {
+    margin-left: auto; min-width: 280px; padding: var(--s-4);
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+  }
+  .progress-label { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--s-2); font-size: 13px; color: var(--text-2); font-weight: 600; }
+  .progress-label strong { font-size: 22px; color: var(--text); font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .progress { height: 8px; border-radius: var(--r-pill); background: var(--column); overflow: hidden; }
+  .progress-bar { height: 100%; width: 0; border-radius: inherit; background: var(--st-done); transition: width 400ms var(--ease-out); }
+  .progress-meta { margin-top: var(--s-2); font-size: 12.5px; color: var(--text-3); }
+
+  .kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--s-3); margin: 0; padding: 0; list-style: none; }
+  .kpi {
+    position: relative; overflow: hidden;
+    padding: var(--s-3) var(--s-4) var(--s-3) calc(var(--s-4) + 3px);
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+  }
+  .kpi::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--dot); }
+  .kpi-label { font-size: 12.5px; font-weight: 600; color: var(--text-2); }
+  .kpi-value { display: block; font-size: 26px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .kpi.is-alert { background: var(--critical-bg); border-color: var(--critical-bd); }
+  .kpi.is-alert .kpi-value, .kpi.is-alert .kpi-label { color: var(--critical); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dot, var(--st-backlog)); }
+
+  /* =========================================================
+     Toolbar
+     ========================================================= */
+  .toolbar {
+    display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s-3);
+    margin-top: var(--s-5); padding: var(--s-4);
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+  }
+  .toolbar .field { margin: 0; min-width: 190px; }
+  .toolbar .field-grow { flex: 1 1 240px; }
+  .toolbar-end { display: flex; align-items: center; gap: var(--s-3); margin-left: auto; }
+  .result-count { color: var(--text-3); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .search-kbd { position: absolute; right: 10px; pointer-events: none; }
+  .control input:focus ~ .search-kbd, .control input:not(:placeholder-shown) ~ .search-kbd { display: none; }
+
+  /* Form fields (16px inputs avoid iOS zoom) */
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--s-4); }
+  .field label { font-weight: 650; font-size: 13px; color: var(--text-2); }
+  .field .req { color: var(--critical); }
+  .control { position: relative; display: flex; align-items: center; }
+  .control > svg { position: absolute; left: 12px; color: var(--text-3); pointer-events: none; }
+  .field input, .field select, .field textarea {
+    width: 100%; height: 42px; padding: 0 var(--s-3); font-size: 16px;
+    border: 1px solid var(--border-strong); border-radius: var(--r-md); background: var(--surface);
+    transition: border-color var(--fast), box-shadow var(--fast);
+  }
+  .control > svg + input { padding-left: 38px; padding-right: 40px; }
+  .field select {
+    appearance: none; padding-right: 36px; cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-3) 50%), linear-gradient(135deg, var(--text-3) 50%, transparent 50%);
+    background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+    background-size: 5px 5px; background-repeat: no-repeat;
+  }
+  .field textarea { height: auto; min-height: 96px; padding: 10px var(--s-3); resize: vertical; line-height: 1.5; }
+  .field input:hover, .field select:hover, .field textarea:hover { border-color: var(--text-3); }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
+  }
+  .field [aria-invalid="true"] { border-color: var(--critical); box-shadow: 0 0 0 3px color-mix(in srgb, var(--critical) 15%, transparent); }
+  .field-error { color: var(--critical); font-size: 13px; font-weight: 600; }
+  .field-error:empty { display: none; }
+  .field-hint { display: flex; justify-content: space-between; color: var(--text-3); font-size: 12.5px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+
+  /* =========================================================
+     Board
+     ========================================================= */
+  main { padding: var(--s-4) 0 var(--s-6); }
+  .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-4); align-items: start; }
+  .column {
+    --dot: var(--st-backlog);
+    background: var(--column); border: 1.5px solid transparent; border-radius: var(--r-lg);
+    padding: var(--s-3); min-height: 360px;
+    transition: background-color var(--fast), border-color var(--fast);
+  }
+  .column[data-status="In Progress"] { --dot: var(--st-progress); }
+  .column[data-status="Blocked"]     { --dot: var(--st-blocked); }
+  .column[data-status="Done"]        { --dot: var(--st-done); }
+  .column.drop-target { background: var(--primary-soft); border-color: var(--primary); border-style: dashed; }
+  .column-head { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-1) var(--s-1) 0; }
+  .column-head h2 { font-size: 14px; font-weight: 750; letter-spacing: -0.005em; }
+  .count-badge {
+    margin-left: auto; min-width: 26px; padding: 0 var(--s-2); border-radius: var(--r-pill); text-align: center;
+    background: var(--surface); border: 1px solid var(--border); font-size: 12px; font-weight: 700; color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .column-hint { padding: 2px var(--s-1) var(--s-3); font-size: 12.5px; color: var(--text-3); border-bottom: 2px solid var(--dot); margin-bottom: var(--s-3); }
+  .card-list { display: flex; flex-direction: column; gap: var(--s-2); }
+  .empty {
+    display: grid; place-items: center; gap: var(--s-2);
+    padding: var(--s-6) var(--s-3); text-align: center;
+    border: 1.5px dashed var(--border-strong); border-radius: var(--r-md);
+    color: var(--text-3); font-size: 13px; font-weight: 600;
+  }
+
+  /* =========================================================
+     Cards
+     ========================================================= */
+  .card {
+    position: relative;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md);
+    padding: var(--s-3) var(--s-3) var(--s-2) var(--s-4);
+    cursor: grab;
+    transition: border-color var(--fast), box-shadow var(--fast), transform var(--fast) var(--ease-out);
+  }
+  .card::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--prio); }
+  .card.prio-critical { --prio: var(--critical); }
+  .card.prio-high     { --prio: var(--high); }
+  .card.prio-medium   { --prio: var(--medium); }
+  .card.prio-low      { --prio: var(--low); }
+  .card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+  .card:active { cursor: grabbing; }
+  .card.dragging { opacity: 0.4; transform: scale(0.98); }
+  .card.is-new { animation: card-in 320ms var(--ease-out); }
+
+  .card-top { display: flex; align-items: center; gap: var(--s-2); min-height: 28px; }
+  .card-id { font-family: var(--mono); font-size: 11.5px; color: var(--text-3); }
+  .badge-overdue {
+    display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: var(--r-pill);
+    background: var(--critical-bg); color: var(--critical); border: 1px solid var(--critical-bd);
+    font-size: 11px; font-weight: 750; letter-spacing: 0.03em; text-transform: uppercase;
+  }
+  .card-top .icon-btn { margin-left: auto; margin-right: -4px; }
+  .card-title { margin: 2px 0 4px; font-size: 14.5px; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+  .card-desc {
+    margin-bottom: var(--s-3); font-size: 13px; color: var(--text-2);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: var(--s-3); }
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px;
+    border: 1px solid; border-radius: var(--r-pill); font-size: 12px; font-weight: 700;
+  }
+  .pill-critical { color: var(--critical); background: var(--critical-bg); border-color: var(--critical-bd); }
+  .pill-high     { color: var(--high);     background: var(--high-bg);     border-color: var(--high-bd); }
+  .pill-medium   { color: var(--medium);   background: var(--medium-bg);   border-color: var(--medium-bd); }
+  .pill-low      { color: var(--low);      background: var(--low-bg);      border-color: var(--low-bd); }
+  .tag { padding: 1px 8px; border-radius: var(--r-sm); background: var(--surface-2); border: 1px solid var(--border); font-size: 12px; color: var(--text-2); }
+  .project { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 650; color: var(--text-2); }
+  .project-swatch { width: 8px; height: 8px; border-radius: 2px; background: var(--swatch); }
+
+  .card-foot { display: flex; align-items: center; gap: var(--s-2); padding-top: var(--s-2); border-top: 1px solid var(--border); }
+  .card-foot dl { display: contents; }
+  .card-foot dt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .card-foot dd { margin: 0; display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12.5px; color: var(--text-2); }
+  .assignee-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .avatar {
+    display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--av); color: #fff; font-size: 10px; font-weight: 800;
+  }
+  .due { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .due svg { color: var(--text-3); }
+  .due.is-late { color: var(--critical); font-weight: 700; }
+  .due.is-late svg { color: currentColor; }
+  .move-btn { margin-left: auto; color: var(--primary); }
+  .move-btn:hover { color: var(--primary-hover); background: var(--primary-soft); }
+  .move-menu, .confirm { animation: pop-in var(--fast) var(--ease-out); }
+  .move-menu {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s-2); padding: var(--s-3);
+    background: var(--primary-soft); border: 1px solid var(--primary-line); border-radius: var(--r-md);
+  }
+  .move-menu-label { width: 100%; font-size: 11.5px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .confirm {
+    display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-2); padding: var(--s-2) var(--s-3);
+    background: var(--critical-bg); border: 1px solid var(--critical-bd); border-radius: var(--r-md);
+    font-size: 13px; font-weight: 700; color: var(--critical);
+  }
+  .confirm span { margin-right: auto; }
+  @keyframes pop-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  @keyframes card-in { from { opacity: 0; transform: translateY(6px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+  /* =========================================================
+     Footer
+     ========================================================= */
+  .site-foot {
+    display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-5);
+    padding: var(--s-4) 0 var(--s-6); border-top: 1px solid var(--border);
+    font-size: 13px; color: var(--text-3);
+  }
+  .shortcuts { display: flex; flex-wrap: wrap; gap: var(--s-4); margin: 0; padding: 0; list-style: none; }
+  .shortcuts li { display: inline-flex; align-items: center; gap: 6px; }
+  .site-foot a { color: var(--primary); font-weight: 650; }
+  .site-foot .push { margin-left: auto; }
+
+  /* =========================================================
+     Add Task drawer
+     ========================================================= */
+  .scrim { position: fixed; inset: 0; z-index: 40; background: var(--scrim); animation: fade-in 200ms ease-out; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 50; width: min(460px, 100vw);
+    display: flex; flex-direction: column;
+    background: var(--surface); border-left: 1px solid var(--border); box-shadow: var(--shadow-xl);
+    animation: slide-in 280ms var(--ease-out);
+  }
+  .drawer[hidden], .scrim[hidden] { display: none; }
+  .drawer-head { display: flex; align-items: flex-start; gap: var(--s-3); padding: var(--s-5) var(--s-5) var(--s-4); border-bottom: 1px solid var(--border); }
+  .drawer-head h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.015em; }
+  .drawer-head p { margin-top: 2px; font-size: 13.5px; color: var(--text-3); }
+  .drawer-head .icon-btn { margin-left: auto; width: 40px; height: 40px; }
+  .drawer form { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .drawer-body { flex: 1; overflow-y: auto; padding: var(--s-5); }
+  .drawer-foot { display: flex; justify-content: flex-end; gap: var(--s-2); padding: var(--s-4) var(--s-5); border-top: 1px solid var(--border); background: var(--surface-2); }
+  .spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent; animation: spin 700ms linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slide-in { from { transform: translateX(32px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* =========================================================
+     Toasts
+     ========================================================= */
+  .toasts {
+    position: fixed; left: 50%; bottom: var(--s-5); transform: translateX(-50%); z-index: 100;
+    display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
+    width: max-content; max-width: calc(100vw - 32px);
+  }
+  .toast {
+    display: flex; align-items: center; gap: var(--s-3); padding: 10px var(--s-4) 10px var(--s-3);
+    border-radius: var(--r-pill); background: var(--toast-bg); color: var(--toast-ink);
+    box-shadow: var(--shadow-xl); font-size: 14px; font-weight: 600;
+    animation: toast-in 250ms var(--ease-out);
+  }
+  .toast-icon { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--st-progress); color: #fff; }
+  .toast-success .toast-icon { background: var(--st-done); }
+  .toast-warning .toast-icon { background: var(--st-blocked); }
+  @keyframes toast-in { from { transform: translateY(12px) scale(0.97); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* =========================================================
+     Responsive + input modality
+     ========================================================= */
+  @media (max-width: 1200px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 1024px) { .board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 767px) {
+    .container { padding: 0 var(--s-4); }
+    .wordmark small, .add-kbd, .search-kbd, .shortcuts { display: none; }
+    .progress-card { margin-left: 0; width: 100%; min-width: 0; }
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kpi-value { font-size: 22px; }
+    .toolbar .field { min-width: 0; flex: 1 1 100%; }
+    .toolbar-end { width: 100%; justify-content: space-between; margin-left: 0; }
+    .board { grid-template-columns: 1fr; }
+    .column { min-height: 0; }
+    .field-row { grid-template-columns: 1fr; gap: 0; }
+    .toast { border-radius: var(--r-lg); }
+  }
+  /* Touch: 44px minimum targets, no hover-only affordances */
+  @media (pointer: coarse) {
+    .btn, .btn-sm { min-height: 44px; }
+    .icon-btn { width: 44px; height: 44px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#board">Skip to board</a>
+
+<!-- =========================================================
+     App bar
+     ========================================================= -->
+<header class="appbar">
+  <div class="container appbar-inner">
+    <div class="wordmark">
+      <span class="wordmark-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 20 20" focusable="false">
+          <rect x="1" y="2" width="5" height="16" rx="1.5" fill="currentColor"/>
+          <rect x="7.5" y="2" width="5" height="10" rx="1.5" fill="currentColor" opacity="0.7"/>
+          <rect x="14" y="2" width="5" height="6" rx="1.5" fill="currentColor" opacity="0.45"/>
+        </svg>
+      </span>
+      <span>IT PMO <small>Delivery workspace</small></span>
+    </div>
+
+    <div class="appbar-end">
+      <button type="button" class="icon-btn theme-btn" id="theme-toggle" aria-label="Switch colour theme">
+        <svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button type="button" class="btn btn-primary" id="toggle-form" aria-expanded="false" aria-controls="task-drawer" aria-keyshortcuts="N">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Add task <kbd class="add-kbd" aria-hidden="true">N</kbd>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <!-- =========================================================
+       Page head: title, completion, KPI strip
+       ========================================================= -->
+  <section class="page-head" aria-labelledby="page-title">
+    <div>
+      <span class="eyebrow"><span class="status-dot" style="--dot: var(--primary)" aria-hidden="true"></span>Technology change portfolio</span>
+      <h1 id="page-title">Portfolio Kanban</h1>
+      <p class="lede">Track IT delivery across workstreams for a fictitious bank. A demo and training board.</p>
+      <p class="demo-note">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7.2v4M8 4.8v.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Demo data. Nothing is saved; refreshing resets the board.
+      </p>
+    </div>
+    <div class="progress-card">
+      <div class="progress-label"><span>Portfolio completion</span><strong id="progress-text">0%</strong></div>
+      <div class="progress" role="progressbar" aria-label="Portfolio completion" aria-valuemin="0" aria-valuemax="100" id="progress">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <p class="progress-meta" id="progress-meta"></p>
+    </div>
+  </section>
+
+  <ul class="kpis" id="summary" aria-label="Board summary"></ul>
+
+  <!-- =========================================================
+       Filter toolbar (client-side only)
+       ========================================================= -->
+  <section class="toolbar" aria-label="Filter tasks">
+    <div class="field field-grow">
+      <label for="filter-assignee">Assignee</label>
+      <div class="control">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input type="search" id="filter-assignee" placeholder="Search by name" autocomplete="off" aria-keyshortcuts="/">
+        <kbd class="search-kbd" aria-hidden="true">/</kbd>
+      </div>
+    </div>
+    <div class="field">
+      <label for="filter-project">Project</label>
+      <select id="filter-project"><option value="">All projects</option></select>
+    </div>
+    <div class="field">
+      <label for="filter-priority">Priority</label>
+      <select id="filter-priority"><option value="">All priorities</option></select>
+    </div>
+    <div class="toolbar-end">
+      <p class="result-count" id="result-count" aria-live="polite"></p>
+      <button type="button" class="btn btn-secondary" id="clear-filters">Reset</button>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       Kanban board (rendered by renderBoard())
+       ========================================================= -->
+  <main>
+    <h2 class="visually-hidden">Board</h2>
+    <div class="board" id="board" tabindex="-1"></div>
+  </main>
+
+  <footer class="site-foot">
+    <ul class="shortcuts" aria-label="Keyboard shortcuts">
+      <li><kbd>N</kbd> New task</li>
+      <li><kbd>/</kbd> Search assignee</li>
+      <li><kbd>Esc</kbd> Close panel or menu</li>
+    </ul>
+    <span class="push">Prefer the classic look? <a href="../">Open the original board</a></span>
+  </footer>
+</div>
+
+<!-- =========================================================
+     Add Task drawer (slide-over form)
+     ========================================================= -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="task-drawer" hidden aria-labelledby="form-heading">
+  <div class="drawer-head">
+    <div>
+      <h2 id="form-heading">New task</h2>
+      <p>Adds a card to the board and emails the PMO.</p>
+    </div>
+    <button type="button" class="icon-btn" id="close-form" aria-label="Close Add Task panel">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M4.5 4.5l9 9M13.5 4.5l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <form id="task-form" novalidate>
+    <div class="drawer-body">
+      <div class="field">
+        <label for="f-title">Task title <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="f-title" name="title" maxlength="80" required placeholder="e.g. Upgrade payment gateway TLS certificates" aria-describedby="err-title">
+        <span class="field-error" id="err-title"></span>
+      </div>
+
+      <div class="field">
+        <label for="f-description">Description</label>
+        <textarea id="f-description" name="description" maxlength="500" placeholder="Context, scope, dependencies" aria-describedby="hint-description err-description"></textarea>
+        <span class="field-hint" id="hint-description"><span>Optional</span><span id="desc-count">0 / 500</span></span>
+        <span class="field-error" id="err-description"></span>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="f-project">Project / Workstream <span class="req" aria-hidden="true">*</span></label>
+          <select id="f-project" name="project" required aria-describedby="err-project"><option value="">Select…</option></select>
+          <span class="field-error" id="err-project"></span>
+        </div>
+        <div class="field">
+          <label for="f-category">Category <span class="req" aria-hidden="true">*</span></label>
+          <select id="f-category" name="category" required aria-describedby="err-category"><option value="">Select…</option></select>
+          <span class="field-error" id="err-category"></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="f-assignee">Assignee <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="f-assignee" name="assignee" maxlength="60" required autocomplete="off" placeholder="Full name" aria-describedby="err-assignee">
+        <span class="field-error" id="err-assignee"></span>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="f-priority">Priority</label>
+          <select id="f-priority" name="priority" aria-describedby="err-priority"></select>
+          <span class="field-error" id="err-priority"></span>
+        </div>
+        <div class="field">
+          <label for="f-status">Status</label>
+          <select id="f-status" name="status" aria-describedby="err-status"></select>
+          <span class="field-error" id="err-status"></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="f-dueDate">Due date <span class="req" aria-hidden="true">*</span></label>
+        <input type="date" id="f-dueDate" name="dueDate" required aria-describedby="err-dueDate">
+        <span class="field-error" id="err-dueDate"></span>
+      </div>
+    </div>
+
+    <div class="drawer-foot">
+      <button type="reset" class="btn btn-ghost">Clear</button>
+      <button type="submit" class="btn btn-primary" id="submit-btn">Add task</button>
+    </div>
+  </form>
+</aside>
+
+<!-- Toast region: announced politely to screen readers -->
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<!--
+  FormSubmit configuration
+  ------------------------
+  Set FORMSUBMIT_ENDPOINT below to https://formsubmit.co/ajax/<your-address>.
+  FormSubmit requires a ONE-TIME ACTIVATION: the first submission sends a
+  confirmation email to that address, and no submissions are delivered until
+  the activation link in that email has been clicked.
+-->
+<script>
+"use strict";
+
+/* =========================================================
+   CONFIG — change the email address here, in one place only
+   ========================================================= */
+const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/YOUR_EMAIL@example.com";
+const TASK_ID_PREFIX = "UOB-ITPM-";   // generated IDs look like UOB-ITPM-0009
+const TOAST_DURATION_MS = 4500;
+const THEME_KEY = "pmo-theme";
+
+/* =========================================================
+   Reference data
+   ========================================================= */
+const COLUMNS = [
+  { status: "Backlog",     hint: "Logged, not yet scheduled" },
+  { status: "In Progress", hint: "Actively being worked" },
+  { status: "Blocked",     hint: "Waiting on a dependency, vendor or approval" },
+  { status: "Done",        hint: "Completed / closed" },
+];
+const STATUSES = COLUMNS.map(c => c.status);
+const STATUS_DOT = {
+  "Backlog": "var(--st-backlog)", "In Progress": "var(--st-progress)",
+  "Blocked": "var(--st-blocked)", "Done": "var(--st-done)",
+};
+const PROJECTS = [
+  "Core Banking Upgrade", "Digital Channels", "Cybersecurity Uplift",
+  "Data & Analytics", "Infrastructure & Cloud", "Vendor Management",
+];
+const PROJECT_COLOR = {
+  "Core Banking Upgrade": "#2563eb", "Digital Channels": "#8b5cf6", "Cybersecurity Uplift": "#dc2626",
+  "Data & Analytics": "#0d9488", "Infrastructure & Cloud": "#f59e0b", "Vendor Management": "#64748b",
+};
+const CATEGORIES = [
+  "Application Development", "Infrastructure", "Cybersecurity",
+  "Data", "Compliance", "Vendor",
+];
+const PRIORITIES = ["Critical", "High", "Medium", "Low"];
+const PRIORITY_RANK = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+const AVATAR_COLORS = ["#1d4ed8", "#7c3aed", "#0f766e", "#c2410c", "#be185d", "#475569", "#15803d", "#a16207"];
+
+/* Static inline icons (trusted markup, never user data) */
+const ICON = {
+  calendar: '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="2" y="3" width="12" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  close: '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  alert: '<svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1.5 15 14H1z" fill="currentColor"/></svg>',
+  inbox: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 13h5l1.5 3h5L16 13h5M5 5h14l2 8v6H3v-6z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+  arrow: '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  check: '<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  info: '<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 7v5M8 4v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  warn: '<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 3.5v5.5M8 12v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+};
+
+/* =========================================================
+   State — the single source of truth (memory only, no storage)
+   ========================================================= */
+const state = {
+  tasks: [],
+  filters: { project: "", assignee: "", priority: "" },
+  ui: {
+    moveMenuId: null,       // card whose "Move" menu is open
+    confirmDeleteId: null,  // card showing "Delete? Yes / No"
+    focus: null,            // { id, action } to restore focus after render
+    newId: null,            // card to play the entrance animation on
+  },
+  nextIdNumber: 1,
+  sending: false,
+};
+
+/* =========================================================
+   Utilities
+   ========================================================= */
+function escapeHtml(value) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, ch => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[ch]));
+}
+
+function toISODate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function todayISO() {
+  return toISODate(new Date());
+}
+
+function addDays(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return toISODate(d);
+}
+
+function formatDate(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const opts = { day: "numeric", month: "short" };
+  if (y !== new Date().getFullYear()) opts.year = "numeric";
+  return date.toLocaleDateString("en-GB", opts);
+}
+
+function isOverdue(task) {
+  return task.status !== "Done" && task.dueDate < todayISO();
+}
+
+function nextTaskId() {
+  const id = TASK_ID_PREFIX + String(state.nextIdNumber).padStart(4, "0");
+  state.nextIdNumber += 1;
+  return id;
+}
+
+function slug(value) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+function initials(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const letters = parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : (parts[0] || "?").slice(0, 2);
+  return letters.toUpperCase();
+}
+
+function avatarColor(name) {
+  let hash = 0;
+  for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+}
+
+function optionsHtml(values, selected) {
+  return values.map(v =>
+    `<option value="${escapeHtml(v)}"${v === selected ? " selected" : ""}>${escapeHtml(v)}</option>`
+  ).join("");
+}
+
+function isTypingTarget(el) {
+  return el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+}
+
+/* =========================================================
+   Seed data — 8 demo tasks, due dates relative to today
+   ========================================================= */
+function seedTasks() {
+  const seeds = [
+    { title: "Migrate FX pricing service to AWS", description: "Lift-and-shift of the FX rate engine to the landing zone; includes latency benchmarking against on-prem.", project: "Infrastructure & Cloud", category: "Infrastructure", assignee: "Priya Nair", priority: "High", dueDate: addDays(12), status: "In Progress" },
+    { title: "Patch CVE-2025-XXXX on branch teller VDI", description: "Emergency patch for the VDI broker. Awaiting vendor hotfix build.", project: "Cybersecurity Uplift", category: "Cybersecurity", assignee: "Marcus Tan", priority: "Critical", dueDate: addDays(-2), status: "Blocked" },
+    { title: "UAT sign-off for mobile onboarding release 4.2", description: "Business UAT for eKYC flow and new account funding screens.", project: "Digital Channels", category: "Application Development", assignee: "Siti Rahman", priority: "High", dueDate: addDays(5), status: "In Progress" },
+    { title: "Renew core banking vendor support contract", description: "Negotiate 3-year renewal and updated SLA schedule.", project: "Vendor Management", category: "Vendor", assignee: "Daniel Lim", priority: "Medium", dueDate: addDays(30), status: "Backlog" },
+    { title: "Compile technology risk control evidence pack", description: "Quarterly evidence collection for access reviews and change management controls.", project: "Cybersecurity Uplift", category: "Compliance", assignee: "Aisha Rahim", priority: "High", dueDate: addDays(21), status: "Backlog" },
+    { title: "Decommission legacy batch reconciliation jobs", description: "Retire 14 mainframe jobs replaced by the new reconciliation engine.", project: "Core Banking Upgrade", category: "Application Development", assignee: "Kevin Ong", priority: "Low", dueDate: addDays(-6), status: "Done" },
+    { title: "Data lineage mapping for customer 360 warehouse", description: "Map source-to-report lineage for top 40 regulatory reports.", project: "Data & Analytics", category: "Data", assignee: "Mei Ling Chua", priority: "Medium", dueDate: addDays(-3), status: "In Progress" },
+    { title: "Core banking DR failover rehearsal", description: "Waiting on change advisory board approval for the weekend window.", project: "Core Banking Upgrade", category: "Infrastructure", assignee: "Rajesh Kumar", priority: "High", dueDate: addDays(3), status: "Blocked" },
+  ];
+  state.tasks = seeds.map(s => ({ id: nextTaskId(), ...s }));
+}
+
+/* =========================================================
+   Filtering
+   ========================================================= */
+function applyFilters(tasks) {
+  const { project, assignee, priority } = state.filters;
+  const needle = assignee.trim().toLowerCase();
+  return tasks.filter(t =>
+    (!project || t.project === project) &&
+    (!priority || t.priority === priority) &&
+    (!needle || t.assignee.toLowerCase().includes(needle))
+  );
+}
+
+/* =========================================================
+   Rendering
+   ========================================================= */
+function renderCard(task) {
+  const overdue = isOverdue(task);
+  const p = task.priority.toLowerCase();
+  const menuOpen = state.ui.moveMenuId === task.id;
+  const confirming = state.ui.confirmDeleteId === task.id;
+  const id = escapeHtml(task.id);
+  const title = escapeHtml(task.title);
+  const swatch = PROJECT_COLOR[task.project] || "var(--text-3)";
+  const isNew = state.ui.newId === task.id;
+
+  const moveMenu = menuOpen ? `
+    <div class="move-menu" role="group" aria-label="Move ${id} to column">
+      <span class="move-menu-label">Move to</span>
+      ${STATUSES.filter(s => s !== task.status).map(s =>
+        `<button type="button" class="btn btn-secondary btn-sm" data-action="move-to" data-status="${escapeHtml(s)}"><span class="status-dot" style="--dot:${STATUS_DOT[s]}" aria-hidden="true"></span>${escapeHtml(s)}</button>`
+      ).join("")}
+      <button type="button" class="btn btn-ghost btn-sm" data-action="move-cancel">Cancel</button>
+    </div>` : "";
+
+  const confirm = confirming ? `
+    <div class="confirm" role="group" aria-label="Confirm deletion of ${id}">
+      <span>Delete this task?</span>
+      <button type="button" class="btn btn-danger btn-sm" data-action="delete-yes">Delete</button>
+      <button type="button" class="btn btn-secondary btn-sm" data-action="delete-no">Keep</button>
+    </div>` : "";
+
+  return `
+    <article class="card prio-${p}${isNew ? " is-new" : ""}" draggable="true" data-id="${id}" tabindex="-1"
+             aria-label="${id}: ${title}">
+      <div class="card-top">
+        <span class="card-id">${id}</span>
+        ${overdue ? `<span class="badge-overdue">${ICON.alert}Overdue</span>` : ""}
+        <button type="button" class="icon-btn is-danger" data-action="delete-ask" aria-label="Delete task ${id}">${ICON.close}</button>
+      </div>
+      <h3 class="card-title">${title}</h3>
+      ${task.description ? `<p class="card-desc">${escapeHtml(task.description)}</p>` : ""}
+      <div class="card-meta">
+        <span class="pill pill-${p}">${escapeHtml(task.priority)}</span>
+        <span class="tag">${escapeHtml(task.category)}</span>
+        <span class="project"><span class="project-swatch" style="--swatch:${swatch}" aria-hidden="true"></span>${escapeHtml(task.project)}</span>
+      </div>
+      <div class="card-foot">
+        <dl>
+          <dt>Assignee</dt>
+          <dd><span class="avatar" style="--av:${avatarColor(task.assignee)}" aria-hidden="true">${escapeHtml(initials(task.assignee))}</span><span class="assignee-name">${escapeHtml(task.assignee)}</span></dd>
+          <dt>Due date</dt>
+          <dd class="due${overdue ? " is-late" : ""}">${ICON.calendar}<time datetime="${escapeHtml(task.dueDate)}">${escapeHtml(formatDate(task.dueDate))}</time></dd>
+        </dl>
+        <button type="button" class="btn btn-ghost btn-sm move-btn" data-action="move-toggle"
+                aria-expanded="${menuOpen}" aria-label="Move task ${id} to another column">Move ${ICON.arrow}</button>
+      </div>
+      ${moveMenu}
+      ${confirm}
+    </article>`;
+}
+
+function renderSummary() {
+  const counts = Object.fromEntries(STATUSES.map(s => [s, 0]));
+  state.tasks.forEach(t => { counts[t.status] += 1; });
+  const overdue = state.tasks.filter(isOverdue).length;
+  const items = [
+    { label: "Total tasks", n: state.tasks.length, dot: "var(--primary)" },
+    ...STATUSES.map(s => ({ label: s, n: counts[s], dot: STATUS_DOT[s] })),
+    { label: "Overdue", n: overdue, dot: "var(--critical)", alert: overdue > 0 },
+  ];
+  document.getElementById("summary").innerHTML = items.map(k => `
+    <li class="kpi${k.alert ? " is-alert" : ""}" style="--dot:${k.dot}">
+      <span class="kpi-label">${escapeHtml(k.label)}</span>
+      <strong class="kpi-value">${k.n}</strong>
+    </li>`).join("");
+
+  const pct = state.tasks.length ? Math.round((counts.Done / state.tasks.length) * 100) : 0;
+  document.getElementById("progress-bar").style.width = `${pct}%`;
+  document.getElementById("progress-text").textContent = `${pct}%`;
+  document.getElementById("progress").setAttribute("aria-valuenow", String(pct));
+  document.getElementById("progress-meta").textContent =
+    `${counts.Done} of ${state.tasks.length} tasks done · ${counts.Blocked} blocked`;
+}
+
+function renderBoard() {
+  const visible = applyFilters(state.tasks);
+  const filtered = visible.length !== state.tasks.length;
+
+  document.getElementById("board").innerHTML = COLUMNS.map(col => {
+    const cards = visible
+      .filter(t => t.status === col.status)
+      .sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority] || a.dueDate.localeCompare(b.dueDate));
+    const headingId = `col-${slug(col.status)}`;
+    return `
+      <section class="column" data-status="${escapeHtml(col.status)}" aria-labelledby="${headingId}">
+        <div class="column-head">
+          <span class="status-dot" aria-hidden="true"></span>
+          <h2 id="${headingId}">${escapeHtml(col.status)}</h2>
+          <span class="count-badge" aria-label="${cards.length} tasks">${cards.length}</span>
+        </div>
+        <p class="column-hint">${escapeHtml(col.hint)}</p>
+        <div class="card-list">
+          ${cards.length ? cards.map(renderCard).join("") : `<p class="empty">${ICON.inbox}${filtered ? "No matching tasks" : "Drop tasks here"}</p>`}
+        </div>
+      </section>`;
+  }).join("");
+
+  document.getElementById("result-count").textContent =
+    filtered ? `Showing ${visible.length} of ${state.tasks.length}` : `${state.tasks.length} tasks`;
+
+  state.ui.newId = null;
+  renderSummary();
+  restoreFocus();
+}
+
+function restoreFocus() {
+  const f = state.ui.focus;
+  state.ui.focus = null;
+  if (!f) return;
+  const card = document.querySelector(`.card[data-id="${CSS.escape(f.id)}"]`);
+  if (!card) return;
+  const target = f.action ? card.querySelector(`[data-action="${f.action}"]`) : null;
+  (target || card).focus();
+}
+
+/* =========================================================
+   Task operations (mutate state, then re-render)
+   ========================================================= */
+function addTask(data) {
+  const task = {
+    id: nextTaskId(),
+    title: data.title.trim(),
+    description: data.description.trim(),
+    project: data.project,
+    category: data.category,
+    assignee: data.assignee.trim(),
+    priority: data.priority,
+    dueDate: data.dueDate,
+    status: data.status,
+  };
+  state.tasks.push(task);
+  state.ui.newId = task.id;
+  renderBoard();
+  return task;
+}
+
+function moveTask(id, newStatus) {
+  const task = state.tasks.find(t => t.id === id);
+  if (!task || !STATUSES.includes(newStatus) || task.status === newStatus) return;
+  task.status = newStatus;
+  state.ui.moveMenuId = null;
+  state.ui.confirmDeleteId = null;
+  state.ui.focus = { id, action: "move-toggle" };
+  state.ui.newId = id;
+  renderBoard();
+  showToast(`${id} moved to ${newStatus}`);
+}
+
+function deleteTask(id) {
+  const task = state.tasks.find(t => t.id === id);
+  if (!task) return;
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  state.ui.confirmDeleteId = null;
+  state.ui.moveMenuId = null;
+  renderBoard();
+  showToast(`${id} deleted`);
+}
+
+/* =========================================================
+   Toasts
+   ========================================================= */
+function showToast(message, type = "info") {
+  const region = document.getElementById("toasts");
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  const icon = document.createElement("span");
+  icon.className = "toast-icon";
+  icon.setAttribute("aria-hidden", "true");
+  icon.innerHTML = type === "success" ? ICON.check : type === "warning" ? ICON.warn : ICON.info;
+  const text = document.createElement("span");
+  text.textContent = message;   // textContent: never interpreted as HTML
+  toast.append(icon, text);
+  region.appendChild(toast);
+  setTimeout(() => toast.remove(), TOAST_DURATION_MS);
+}
+
+/* =========================================================
+   FormSubmit notification (AJAX JSON endpoint)
+   ========================================================= */
+async function notifyNewTask(task) {
+  if (FORMSUBMIT_ENDPOINT.includes("YOUR_EMAIL")) {
+    throw new Error("FormSubmit endpoint not configured");
+  }
+  const res = await fetch(FORMSUBMIT_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      _subject: `[UOB IT PMO] New task ${task.id}: ${task.title}`,
+      _template: "table",
+      _captcha: "false",
+      "Task ID": task.id,
+      Title: task.title,
+      Description: task.description,
+      Project: task.project,
+      Category: task.category,
+      Assignee: task.assignee,
+      Priority: task.priority,
+      "Due Date": task.dueDate,
+      Status: task.status,
+      "Submitted At": new Date().toISOString(),
+    }),
+  });
+  if (!res.ok) throw new Error(`FormSubmit failed: ${res.status}`);
+  const json = await res.json();
+  if (json.success === false || json.success === "false") {
+    throw new Error(`FormSubmit rejected: ${json.message || "unknown error"}`);
+  }
+  return json;
+}
+
+/* =========================================================
+   Add Task form: read, validate, submit
+   ========================================================= */
+const FORM_FIELDS = ["title", "description", "project", "category", "assignee", "priority", "dueDate", "status"];
+
+function readForm(form) {
+  const fd = new FormData(form);
+  return Object.fromEntries(FORM_FIELDS.map(k => [k, String(fd.get(k) || "")]));
+}
+
+function validateTask(data) {
+  const errors = {};
+  const title = data.title.trim();
+  if (!title) errors.title = "Task title is required.";
+  else if (title.length > 80) errors.title = "Title must be 80 characters or fewer.";
+  if (data.description.length > 500) errors.description = "Description must be 500 characters or fewer.";
+  if (!PROJECTS.includes(data.project)) errors.project = "Choose a project / workstream.";
+  if (!CATEGORIES.includes(data.category)) errors.category = "Choose a category.";
+  if (!data.assignee.trim()) errors.assignee = "Assignee is required.";
+  if (!PRIORITIES.includes(data.priority)) errors.priority = "Choose a priority.";
+  if (!STATUSES.includes(data.status)) errors.status = "Choose a status.";
+  if (!data.dueDate) errors.dueDate = "Due date is required.";
+  else if (!/^\d{4}-\d{2}-\d{2}$/.test(data.dueDate)) errors.dueDate = "Enter a valid date.";
+  else if (data.dueDate < todayISO()) errors.dueDate = "Due date cannot be in the past.";
+  return errors;
+}
+
+function showFormErrors(errors) {
+  FORM_FIELDS.forEach(key => {
+    const input = document.getElementById(`f-${key}`);
+    const err = document.getElementById(`err-${key}`);
+    err.textContent = errors[key] || "";
+    if (errors[key]) input.setAttribute("aria-invalid", "true");
+    else input.removeAttribute("aria-invalid");
+  });
+}
+
+function updateDescCount() {
+  const len = document.getElementById("f-description").value.length;
+  document.getElementById("desc-count").textContent = `${len} / 500`;
+}
+
+function setSending(isSending) {
+  state.sending = isSending;
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = isSending;
+  btn.innerHTML = isSending ? '<span class="spinner" aria-hidden="true"></span>Sending…' : "Add task";
+}
+
+async function handleSubmit(event) {
+  event.preventDefault();
+  if (state.sending) return;
+  const form = event.currentTarget;
+  const data = readForm(form);
+  const errors = validateTask(data);
+  showFormErrors(errors);
+
+  const firstInvalid = FORM_FIELDS.find(k => errors[k]);
+  if (firstInvalid) {
+    document.getElementById(`f-${firstInvalid}`).focus();
+    return;
+  }
+
+  // Optimistic UI: card appears immediately, email goes out in parallel
+  const task = addTask(data);
+  form.reset();
+  showFormErrors({});
+  updateDescCount();
+  showToast(`Task ${task.id} added to ${task.status}`, "success");
+
+  setSending(true);
+  try {
+    await notifyNewTask(task);
+  } catch (err) {
+    console.warn(err);
+    showToast("Card added locally — email notification failed", "warning");
+  } finally {
+    setSending(false);
+  }
+}
+
+function toggleDrawer(open) {
+  const drawer = document.getElementById("task-drawer");
+  const btn = document.getElementById("toggle-form");
+  drawer.hidden = !open;
+  document.getElementById("scrim").hidden = !open;
+  btn.setAttribute("aria-expanded", String(open));
+  if (open) document.getElementById("f-title").focus();
+  else btn.focus();
+}
+
+/* =========================================================
+   Theme: OS preference by default, user choice remembered
+   ========================================================= */
+function currentTheme() {
+  const set = document.documentElement.dataset.theme;
+  if (set) return set;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function updateThemeLabel() {
+  const next = currentTheme() === "dark" ? "light" : "dark";
+  document.getElementById("theme-toggle").setAttribute("aria-label", `Switch to ${next} theme`);
+}
+
+function toggleTheme() {
+  const next = currentTheme() === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* storage blocked: theme lasts this visit */ }
+  updateThemeLabel();
+}
+
+/* =========================================================
+   Board interactions: click actions, keyboard, drag & drop
+   ========================================================= */
+function handleBoardClick(event) {
+  const btn = event.target.closest("button[data-action]");
+  if (!btn) return;
+  const card = btn.closest(".card");
+  const id = card.dataset.id;
+
+  switch (btn.dataset.action) {
+    case "move-toggle":
+      state.ui.moveMenuId = state.ui.moveMenuId === id ? null : id;
+      state.ui.confirmDeleteId = null;
+      state.ui.focus = { id, action: state.ui.moveMenuId ? "move-to" : "move-toggle" };
+      renderBoard();
+      break;
+    case "move-cancel":
+      state.ui.moveMenuId = null;
+      state.ui.focus = { id, action: "move-toggle" };
+      renderBoard();
+      break;
+    case "move-to":
+      moveTask(id, btn.dataset.status);
+      break;
+    case "delete-ask":
+      state.ui.confirmDeleteId = id;
+      state.ui.moveMenuId = null;
+      state.ui.focus = { id, action: "delete-no" };
+      renderBoard();
+      break;
+    case "delete-no":
+      state.ui.confirmDeleteId = null;
+      state.ui.focus = { id, action: "delete-ask" };
+      renderBoard();
+      break;
+    case "delete-yes":
+      deleteTask(id);
+      break;
+  }
+}
+
+function handleBoardKeydown(event) {
+  if (event.key !== "Escape") return;
+  const card = event.target.closest(".card");
+  if (!card || (!state.ui.moveMenuId && !state.ui.confirmDeleteId)) return;
+  const action = state.ui.confirmDeleteId ? "delete-ask" : "move-toggle";
+  state.ui.moveMenuId = null;
+  state.ui.confirmDeleteId = null;
+  state.ui.focus = { id: card.dataset.id, action };
+  renderBoard();
+}
+
+function clearDropTargets() {
+  document.querySelectorAll(".column.drop-target").forEach(c => c.classList.remove("drop-target"));
+}
+
+function initDragAndDrop(board) {
+  board.addEventListener("dragstart", e => {
+    const card = e.target.closest(".card");
+    if (!card) return;
+    e.dataTransfer.setData("text/plain", card.dataset.id);
+    e.dataTransfer.effectAllowed = "move";
+    card.classList.add("dragging");
+  });
+  board.addEventListener("dragend", e => {
+    const card = e.target.closest(".card");
+    if (card) card.classList.remove("dragging");
+    clearDropTargets();
+  });
+  board.addEventListener("dragover", e => {
+    const col = e.target.closest(".column");
+    if (!col) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (!col.classList.contains("drop-target")) {
+      clearDropTargets();
+      col.classList.add("drop-target");
+    }
+  });
+  board.addEventListener("dragleave", e => {
+    const col = e.target.closest(".column");
+    if (col && !col.contains(e.relatedTarget)) col.classList.remove("drop-target");
+  });
+  board.addEventListener("drop", e => {
+    const col = e.target.closest(".column");
+    if (!col) return;
+    e.preventDefault();
+    clearDropTargets();
+    const id = e.dataTransfer.getData("text/plain");
+    if (id) moveTask(id, col.dataset.status);
+  });
+}
+
+/* =========================================================
+   Init
+   ========================================================= */
+function populateSelects() {
+  document.getElementById("filter-project").insertAdjacentHTML("beforeend", optionsHtml(PROJECTS));
+  document.getElementById("filter-priority").insertAdjacentHTML("beforeend", optionsHtml(PRIORITIES));
+  document.getElementById("f-project").insertAdjacentHTML("beforeend", optionsHtml(PROJECTS));
+  document.getElementById("f-category").insertAdjacentHTML("beforeend", optionsHtml(CATEGORIES));
+  document.getElementById("f-priority").innerHTML = optionsHtml(PRIORITIES, "Medium");
+  document.getElementById("f-status").innerHTML = optionsHtml(STATUSES, "Backlog");
+  document.getElementById("f-dueDate").min = todayISO();
+}
+
+function initFilters() {
+  const project = document.getElementById("filter-project");
+  const assignee = document.getElementById("filter-assignee");
+  const priority = document.getElementById("filter-priority");
+  const update = () => {
+    state.filters = { project: project.value, assignee: assignee.value, priority: priority.value };
+    renderBoard();
+  };
+  project.addEventListener("change", update);
+  priority.addEventListener("change", update);
+  assignee.addEventListener("input", update);
+  document.getElementById("clear-filters").addEventListener("click", () => {
+    project.value = ""; assignee.value = ""; priority.value = "";
+    update();
+  });
+}
+
+function initShortcuts(drawer) {
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && !drawer.hidden) { toggleDrawer(false); return; }
+    if (e.ctrlKey || e.metaKey || e.altKey || isTypingTarget(e.target) || !drawer.hidden) return;
+    if (e.key === "n" || e.key === "N") { e.preventDefault(); toggleDrawer(true); }
+    else if (e.key === "/") { e.preventDefault(); document.getElementById("filter-assignee").focus(); }
+  });
+}
+
+function init() {
+  populateSelects();
+  seedTasks();
+  initFilters();
+
+  const board = document.getElementById("board");
+  board.addEventListener("click", handleBoardClick);
+  board.addEventListener("keydown", handleBoardKeydown);
+  initDragAndDrop(board);
+
+  const form = document.getElementById("task-form");
+  form.addEventListener("submit", handleSubmit);
+  form.addEventListener("reset", () => { showFormErrors({}); setTimeout(updateDescCount); });
+  document.getElementById("f-description").addEventListener("input", updateDescCount);
+
+  const drawer = document.getElementById("task-drawer");
+  document.getElementById("toggle-form").addEventListener("click", () => toggleDrawer(drawer.hidden));
+  document.getElementById("close-form").addEventListener("click", () => toggleDrawer(false));
+  document.getElementById("scrim").addEventListener("click", () => toggleDrawer(false));
+  initShortcuts(drawer);
+
+  document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+  updateThemeLabel();
+
+  renderBoard();
+}
+
+init();
+</script>
+</body>
+</html>

@@ -11,6 +11,8 @@ A single-page Kanban board for tracking IT project-management-office tasks, buil
 
 **Live demo:** https://arjunramanjanappa.github.io/IT-training/
 
+**Redesigned board (v2):** https://arjunramanjanappa.github.io/IT-training/v2/
+
 ![IT PMO Kanban board screenshot](docs/screenshot.png)
 
 ## Features
@@ -24,6 +26,16 @@ A single-page Kanban board for tracking IT project-management-office tasks, buil
 - Optional email notification for new tasks through [FormSubmit](https://formsubmit.co/) (off until you configure an address)
 - Accessible markup: labelled regions, ARIA live regions, focus management, Escape to close panels
 - No persistence: refreshing the page resets the board to the sample data
+
+### v2 redesign
+
+`v2/index.html` is a redesigned version of the same board, built with the [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) skill's guidance for productivity tools. The original page is unchanged.
+
+- Flat, light design with a teal palette and the Plus Jakarta Sans font
+- Light and dark themes: follows your system setting, with a toggle that remembers your choice
+- Keyboard shortcuts: **N** for a new task, **/** to search by assignee, **Esc** to close panels and menus
+- Larger touch targets on phones and tablets, a skip-to-board link, and reduced motion when your system asks for it
+- Same features and sample data as the original
 
 ## How to install
 
@@ -56,7 +68,7 @@ In `index.html`, set `FORMSUBMIT_ENDPOINT` to `https://formsubmit.co/ajax/<your-
 
 ## Deployment
 
-Every push to `main` runs the [`pages.yml`](.github/workflows/pages.yml) GitHub Actions workflow. The **build** job checks that the site entry point exists and packages only the site files (`index.html`) as a Pages artifact; the **deploy** job then publishes that artifact to GitHub Pages using `actions/deploy-pages`. Pull requests run the build job only, without deploying, and the workflow can also be started manually from the Actions tab.
+Every push to `main` runs the [`pages.yml`](.github/workflows/pages.yml) GitHub Actions workflow. The **build** job checks that the site entry point exists and packages only the site files (`index.html` and `v2/index.html`) as a Pages artifact; the **deploy** job then publishes that artifact to GitHub Pages using `actions/deploy-pages`. Pull requests run the build job only, without deploying, and the workflow can also be started manually from the Actions tab.
 
 ## Project structure
 
@@ -69,5 +81,7 @@ Every push to `main` runs the [`pages.yml`](.github/workflows/pages.yml) GitHub 
 │   └── screenshot.png  # Screenshot of the live site for this README
 ├── .gitignore
 ├── index.html          # The whole app: markup, styles and script
+├── v2/
+│   └── index.html      # Redesigned version of the board
 └── README.md
 ```
