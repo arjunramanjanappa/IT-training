@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-AUPD6jjgm/UgLf7Ej3X2FUpAEYeK4/HSZW1kfYhFur8=' 'sha256-Luqbu23m9mE7WzZfAwdTfFrf1Sa7gMcoKtK8SimvX3E='; style-src 'unsafe-inline'; img-src 'self' data:; connect-src https://formsubmit.co; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>IT PMO Kanban</title>
 <style>
   /* =========================================================
@@ -627,6 +629,12 @@
       </div>
     </div>
 
+    <!-- Honeypot: hidden from people; FormSubmit drops submissions where bots filled it -->
+    <div class="visually-hidden" aria-hidden="true">
+      <label for="f-honey">Leave this field empty</label>
+      <input type="text" id="f-honey" name="_honey" tabindex="-1" autocomplete="off">
+    </div>
+
     <div class="drawer-foot">
       <button type="reset" class="btn btn-text">Clear</button>
       <button type="submit" class="btn btn-primary" id="submit-btn">Add task</button>
@@ -640,7 +648,12 @@
 <!--
   FormSubmit configuration
   ------------------------
-  Set FORMSUBMIT_ENDPOINT below to https://formsubmit.co/ajax/<your-address>.
+  Set FORMSUBMIT_ENDPOINT below to FormSubmit's random-string ALIAS endpoint
+  (https://formsubmit.co/ajax/<random-alias>), not the raw email address:
+  this page is public, so a raw address would be harvested by scrapers.
+  FormSubmit shows the alias in the activation email.
+  Submissions are unauthenticated: treat them as unverified notifications,
+  never as the system of record.
   FormSubmit requires a ONE-TIME ACTIVATION: the first submission sends a
   confirmation email to that address, and no submissions are delivered until
   the activation link in that email has been clicked.
@@ -991,7 +1004,7 @@ function showToast(message, type = "info") {
 /* =========================================================
    FormSubmit notification (AJAX JSON endpoint)
    ========================================================= */
-async function notifyNewTask(task) {
+async function notifyNewTask(task, honey = "") {
   if (FORMSUBMIT_ENDPOINT.includes("YOUR_EMAIL")) {
     throw new Error("FormSubmit endpoint not configured");
   }
@@ -999,9 +1012,11 @@ async function notifyNewTask(task) {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify({
-      _subject: `[UOB IT PMO] New task ${task.id}: ${task.title}`,
+      // Subject carries the ID only: user text never lands in the subject line
+      _subject: `[UOB IT PMO] New task ${task.id} (unverified submission)`,
       _template: "table",
-      _captcha: "false",
+      _honey: honey,
+      Notice: "Unverified submission from a public web form. Check with the requester before opening links or acting on it.",
       "Task ID": task.id,
       Title: task.title,
       Description: task.description,
@@ -1076,6 +1091,7 @@ async function handleSubmit(event) {
   if (state.sending) return;
   const form = event.currentTarget;
   const data = readForm(form);
+  const honey = String(new FormData(form).get("_honey") || "");
   const errors = validateTask(data);
   showFormErrors(errors);
 
@@ -1094,7 +1110,7 @@ async function handleSubmit(event) {
 
   setSending(true);
   try {
-    await notifyNewTask(task);
+    await notifyNewTask(task, honey);
   } catch (err) {
     console.warn(err);
     showToast("Card added locally — email notification failed", "warning");

@@ -32,3 +32,8 @@ Thumbs.db
 
 # Playwright MCP output
 .playwright-mcp/
+
+# Local agent tooling (kept out of the repo: local paths, unpinned third-party skills)
+.mcp.json
+skills-lock.json
+.agents/

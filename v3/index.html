@@ -4,11 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-tyyqOcP5Z2TKYN17kor/3wBzaf6K+8vnohxmhQIQq9Q=' 'sha256-La5ScXBe3kCXFI061lcbLoeJScZGF6Z30Pay84ncPbo='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>IT PMO Kanban</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
 <style>
+  /* Self-hosted fonts (SIL OFL 1.1, see fonts/README.md): no third-party requests */
+  @font-face {
+    font-family: "Geist"; font-style: normal; font-weight: 300 700; font-display: swap;
+    src: url("../fonts/geist-latin.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Geist Mono"; font-style: normal; font-weight: 400 500; font-display: swap;
+    src: url("../fonts/geist-mono-latin.woff2") format("woff2");
+  }
   /* =========================================================
      Mock: "Ethereal Glass" texture + "Asymmetrical Bento" layout
      (high-end-visual-design skill). Static demo data, no saving.
