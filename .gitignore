@@ -1,0 +1,31 @@
+# Local Claude Code config and commands
+.claude/
+
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+*.keystore
+credentials*.json
+
+# Local databases and dumps
+*.sqlite
+*.db
+
+# Build output / dependencies
+_site/
+node_modules/
+
+# Logs
+*.log
+
+# IDE / OS files
+.idea/
+.vscode/*.local*
+.DS_Store
+Thumbs.db
