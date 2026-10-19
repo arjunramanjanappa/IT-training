@@ -40,8 +40,8 @@ jobs:
           cp v3/index.html _site/v3/
           mkdir _site/fonts
           cp fonts/*.woff2 _site/fonts/
-          mkdir -p _site/.claude/hooks
-          cp .claude/hooks/security-briefing.js _site/.claude/hooks/
+          mkdir _site/hooks  # Pages skips hidden folders, so publish the hook outside .claude/
+          cp .claude/hooks/security-briefing.js _site/hooks/
 
       - name: Configure Pages
         if: github.event_name != 'pull_request'

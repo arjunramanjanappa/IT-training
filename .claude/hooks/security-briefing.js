@@ -1,6 +1,7 @@
 // Site hook: after a visitor has spent 10 seconds on the page (visible time only),
 // show a modal notice about the mandatory IT security briefing.
-// Shown once per browser session. Loaded by index.html, v2/index.html and v3/index.html.
+// Shown once per browser session. Loaded by index.html, v2/index.html and v3/index.html;
+// the Pages workflow publishes it at /hooks/ because Pages skips hidden folders.
 (function () {
   'use strict';
 
