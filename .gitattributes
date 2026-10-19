@@ -1,3 +1,4 @@
 # Keep HTML byte-identical across checkouts: the CSP script hashes depend on exact line endings
 *.html text eol=lf
+.claude/hooks/*.js text eol=lf
 *.woff2 binary
