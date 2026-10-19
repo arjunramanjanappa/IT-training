@@ -11,9 +11,11 @@ A single-page Kanban board for tracking IT project-management-office tasks, buil
 
 **Live demo:** https://arjunramanjanappa.github.io/IT-training/
 
+![IT PMO Kanban board screenshot](docs/screenshot.png)
+
 **Redesigned board (v2):** https://arjunramanjanappa.github.io/IT-training/v2/
 
-![IT PMO Kanban board screenshot](docs/screenshot.png)
+![IT PMO Kanban v2 screenshot](docs/screenshot-v2.png)
 
 ## Features
 
@@ -78,7 +80,8 @@ Every push to `main` runs the [`pages.yml`](.github/workflows/pages.yml) GitHub 
 │   └── workflows/
 │       └── pages.yml   # Build + deploy to GitHub Pages
 ├── docs/
-│   └── screenshot.png  # Screenshot of the live site for this README
+│   ├── screenshot.png     # Screenshot of the original board
+│   └── screenshot-v2.png  # Screenshot of the v2 redesign
 ├── .gitignore
 ├── index.html          # The whole app: markup, styles and script
 ├── v2/
