@@ -11,6 +11,8 @@ A single-page Kanban board for tracking IT project-management-office tasks, buil
 
 **Live demo:** https://arjunramanjanappa.github.io/IT-training/
 
+![IT PMO Kanban board screenshot](docs/screenshot.png)
+
 ## Features
 
 - Four columns: **Backlog**, **In Progress**, **Blocked** and **Done**, preloaded with sample IT tasks
@@ -63,6 +65,8 @@ Every push to `main` runs the [`pages.yml`](.github/workflows/pages.yml) GitHub 
 ├── .github/
 │   └── workflows/
 │       └── pages.yml   # Build + deploy to GitHub Pages
+├── docs/
+│   └── screenshot.png  # Screenshot of the live site for this README
 ├── .gitignore
 ├── index.html          # The whole app: markup, styles and script
 └── README.md
