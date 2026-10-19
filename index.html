@@ -3,408 +3,607 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>IT PMO Kanban</title>
 <style>
   /* =========================================================
-     Design tokens: palette and spacing scale
+     Design tokens: palette, spacing, radii, elevation
      ========================================================= */
   :root {
-    --c-brand-900: #0b2a5b;
-    --c-brand-700: #14468f;
-    --c-brand-600: #1a56b0;
-    --c-brand-100: #e6eefb;
-    --c-brand-50:  #f3f7fd;
+    --brand-950: #071a3a;
+    --brand-900: #0b2552;
+    --brand-800: #12336e;
+    --brand-600: #2257c9;
+    --brand-500: #3a6ee8;
+    --brand-100: #e3ebfd;
+    --brand-50:  #f2f6fe;
 
-    --c-bg:        #eef2f8;
-    --c-surface:   #ffffff;
-    --c-border:    #d5dce8;
-    --c-text:      #1c2533;
-    --c-text-muted:#5a6578;
-    --c-focus:     #f5a623;
+    --bg:          #f4f6fa;
+    --surface:     #ffffff;
+    --surface-2:   #f8fafc;
+    --column:      #eceff5;
+    --border:      #e1e6ee;
+    --border-strong:#cbd3df;
+    --text:        #101828;
+    --text-2:      #475467;
+    --text-3:      #667085;
+    --focus:       #f59e0b;
 
-    --c-critical:  #c62828;
-    --c-critical-bg:#fdecec;
-    --c-high:      #b25e00;
-    --c-high-bg:   #fff3e0;
-    --c-medium:    #1a56b0;
-    --c-medium-bg: #e6eefb;
-    --c-low:       #6b7280;
-    --c-low-bg:    #f0f1f3;
+    --critical: #d92d20; --critical-bg: #fef3f2; --critical-bd: #fecdca;
+    --high:     #b54708; --high-bg:     #fffaeb; --high-bd:     #fedf89;
+    --medium:   #2257c9; --medium-bg:   #eff4ff; --medium-bd:   #c7d7fe;
+    --low:      #667085; --low-bg:      #f2f4f7; --low-bd:      #d0d5dd;
 
-    --c-success:   #1e7d45;
-    --c-warning:   #9a5b00;
-    --c-danger:    #c62828;
+    --st-backlog:  #8a94a6;
+    --st-progress: #3a6ee8;
+    --st-blocked:  #e0702a;
+    --st-done:     #12a454;
 
-    --space-1: 4px;
-    --space-2: 8px;
-    --space-3: 12px;
-    --space-4: 16px;
-    --space-5: 24px;
-    --space-6: 32px;
+    --success: #12a454;
+    --warning: #dc8a0e;
 
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-pill: 999px;
-    --shadow-card: 0 1px 2px rgba(11, 42, 91, 0.08), 0 1px 3px rgba(11, 42, 91, 0.06);
-    --shadow-pop:  0 6px 20px rgba(11, 42, 91, 0.18);
+    --space-1: 4px;  --space-2: 8px;  --space-3: 12px;
+    --space-4: 16px; --space-5: 24px; --space-6: 32px; --space-7: 48px;
 
-    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 18px; --r-pill: 999px;
+
+    --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+    --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+    --shadow-md: 0 8px 16px -4px rgba(16, 24, 40, 0.10), 0 3px 6px -2px rgba(16, 24, 40, 0.05);
+    --shadow-xl: 0 24px 48px -12px rgba(16, 24, 40, 0.25);
+
+    --font: system-ui, -apple-system, "Segoe UI Variable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:          #0b1220;
+      --surface:     #131c2e;
+      --surface-2:   #18233a;
+      --column:      #0f1829;
+      --border:      #233049;
+      --border-strong:#2f3f5e;
+      --text:        #e8edf6;
+      --text-2:      #b3bfd3;
+      --text-3:      #8592aa;
+      --brand-100:   #1b2c52;
+      --brand-50:    #16223d;
+
+      --critical: #ff7a6e; --critical-bg: #3a1714; --critical-bd: #6b2620;
+      --high:     #f5b544; --high-bg:     #352510; --high-bd:     #66471a;
+      --medium:   #8cb0ff; --medium-bg:   #17264a; --medium-bd:   #2c4682;
+      --low:      #a4afc2; --low-bg:      #1e293d; --low-bd:      #36435c;
+
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 10px 20px -6px rgba(0, 0, 0, 0.55);
+      --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.7);
+    }
   }
 
   /* =========================================================
      Base
      ========================================================= */
   *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
     font-family: var(--font);
     font-size: 14px;
-    line-height: 1.45;
-    color: var(--c-text);
-    background: var(--c-bg);
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3 { margin: 0; }
+  h1, h2, h3, p { margin: 0; }
   button, input, select, textarea { font: inherit; color: inherit; }
-  :focus-visible {
-    outline: 3px solid var(--c-focus);
-    outline-offset: 2px;
-  }
+  svg { flex-shrink: 0; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: var(--r-sm); }
   .visually-hidden {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
     overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
   }
+  .container { max-width: 1480px; margin: 0 auto; padding: 0 var(--space-6); }
 
   /* Buttons */
   .btn {
-    display: inline-flex; align-items: center; gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    border: 1px solid transparent; border-radius: var(--radius-sm);
-    background: var(--c-surface); cursor: pointer; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+    height: 38px; padding: 0 var(--space-4);
+    border: 1px solid transparent; border-radius: var(--r-md);
+    background: var(--surface); cursor: pointer; font-weight: 600; font-size: 14px;
+    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.15s var(--ease);
+    white-space: nowrap;
   }
-  .btn-primary { background: var(--c-brand-600); color: #fff; }
-  .btn-primary:hover { background: var(--c-brand-700); }
-  .btn-primary:disabled { background: #7d95bd; cursor: progress; }
-  .btn-light { background: #fff; color: var(--c-brand-900); }
-  .btn-light:hover { background: var(--c-brand-100); }
-  .btn-ghost { background: transparent; border-color: var(--c-border); color: var(--c-text); }
-  .btn-ghost:hover { background: var(--c-brand-50); }
-  .btn-sm { padding: 2px var(--space-2); font-size: 12px; font-weight: 600; }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary {
+    background: linear-gradient(180deg, var(--brand-500), var(--brand-600));
+    color: #fff; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+  .btn-primary:hover { background: var(--brand-600); }
+  .btn-primary:disabled { opacity: 0.65; cursor: progress; }
+  .btn-white { background: #fff; color: var(--brand-900); box-shadow: var(--shadow-sm); }
+  .btn-white:hover { background: #eef3ff; }
+  .btn-secondary { background: var(--surface); border-color: var(--border-strong); color: var(--text); box-shadow: var(--shadow-xs); }
+  .btn-secondary:hover { background: var(--surface-2); }
+  .btn-text { background: transparent; color: var(--text-2); }
+  .btn-text:hover { background: var(--brand-50); color: var(--text); }
+  .btn-sm { height: 28px; padding: 0 var(--space-3); font-size: 12px; border-radius: var(--r-sm); }
+  .btn-danger { background: var(--critical); color: #fff; }
+  .btn-danger:hover { filter: brightness(0.95); }
+  .icon-btn {
+    display: inline-grid; place-items: center;
+    width: 28px; height: 28px; border: 0; border-radius: var(--r-sm);
+    background: transparent; color: var(--text-3); cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .icon-btn:hover { background: var(--critical-bg); color: var(--critical); }
 
   /* =========================================================
-     Header: wordmark, summary strip, actions
+     Top bar + hero (title, KPIs)
      ========================================================= */
-  .app-header {
-    background: var(--c-brand-900);
+  .hero {
     color: #fff;
-    padding: var(--space-3) var(--space-5);
-    display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4);
+    background:
+      radial-gradient(1200px 400px at 85% -20%, rgba(90, 140, 255, 0.35), transparent 60%),
+      radial-gradient(800px 300px at 0% 120%, rgba(40, 90, 200, 0.35), transparent 60%),
+      linear-gradient(160deg, var(--brand-950), var(--brand-800));
+    padding-bottom: 72px;
   }
-  .wordmark { display: flex; align-items: center; gap: var(--space-2); }
-  .wordmark h1 { font-size: 20px; letter-spacing: 0.5px; }
-  .wordmark small { display: block; font-size: 11px; color: #b9c8e4; font-weight: 400; }
-  .summary {
-    display: flex; flex-wrap: wrap; gap: var(--space-2);
-    margin: 0 0 0 auto; padding: 0; list-style: none;
+  .topbar { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4) 0; }
+  .wordmark { display: flex; align-items: center; gap: var(--space-3); text-decoration: none; color: inherit; }
+  .wordmark-mark {
+    display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.18);
   }
-  .summary li {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-sm);
-    padding: var(--space-1) var(--space-3);
-    font-size: 12px; color: #d6e0f2;
-    text-align: center; min-width: 72px;
+  .wordmark-text { font-weight: 750; font-size: 17px; letter-spacing: 0.4px; }
+  .wordmark-text span { font-weight: 400; color: #9fb4dc; margin-left: var(--space-2); font-size: 13px; letter-spacing: 0; }
+  .demo-chip {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    margin-left: auto; padding: 5px var(--space-3); border-radius: var(--r-pill);
+    background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #c9d6ef; font-size: 12px;
   }
-  .summary strong { display: block; font-size: 18px; color: #fff; line-height: 1.1; }
-  .summary .is-overdue strong { color: #ffb3b3; }
-  .demo-note {
-    width: 100%; margin: 0; font-size: 12px; color: #b9c8e4;
+  .demo-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2); }
+
+  .hero-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-5); padding: var(--space-6) 0 var(--space-5); }
+  .hero-title h1 { font-size: 30px; font-weight: 750; letter-spacing: -0.02em; line-height: 1.15; }
+  .hero-title p { margin-top: var(--space-2); color: #b5c5e4; font-size: 14px; }
+  .progress-wrap { margin-left: auto; min-width: 240px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #b5c5e4; margin-bottom: 6px; }
+  .progress-label strong { color: #fff; font-size: 13px; }
+  .progress { height: 8px; border-radius: var(--r-pill); background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+  .progress-bar { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #34d399, #10b981); transition: width 0.4s var(--ease); }
+
+  .kpis {
+    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-3);
+    margin: 0; padding: 0; list-style: none;
   }
+  .kpi {
+    padding: var(--space-3) var(--space-4); border-radius: var(--r-lg);
+    background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(6px);
+  }
+  .kpi-label { display: flex; align-items: center; gap: var(--space-2); font-size: 12px; color: #b5c5e4; }
+  .kpi-value { display: block; margin-top: 2px; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .kpi.is-alert { background: rgba(240, 68, 56, 0.16); border-color: rgba(255, 120, 110, 0.35); }
+  .kpi.is-alert .kpi-value { color: #ffb4ab; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dot, var(--st-backlog)); }
 
   /* =========================================================
-     Filter bar
+     Toolbar / filters (overlaps the hero)
      ========================================================= */
-  .filters {
+  .toolbar {
+    position: relative; margin-top: -44px;
     display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3);
-    padding: var(--space-3) var(--space-5);
-    background: var(--c-surface);
-    border-bottom: 1px solid var(--c-border);
+    padding: var(--space-4); border-radius: var(--r-xl);
+    background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-md);
   }
-  .filters .field { margin: 0; }
-  .filters .result-count { margin-left: auto; color: var(--c-text-muted); font-size: 12px; align-self: center; }
-
-  /* =========================================================
-     Layout: optional sidebar form + board
-     ========================================================= */
-  .layout {
-    display: grid; grid-template-columns: 1fr; gap: var(--space-4);
-    padding: var(--space-4) var(--space-5);
-    align-items: start;
-  }
-  .layout.sidebar-open { grid-template-columns: 330px 1fr; }
-
-  /* Sidebar (Add Task) */
-  .sidebar {
-    background: var(--c-surface);
-    border: 1px solid var(--c-border);
-    border-radius: var(--radius-md);
-    padding: var(--space-4);
-    position: sticky; top: var(--space-4);
-  }
-  .sidebar-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
-  .sidebar-head h2 { font-size: 16px; color: var(--c-brand-900); }
+  .toolbar .field { margin: 0; min-width: 180px; }
+  .toolbar .field-grow { flex: 1 1 220px; }
+  .toolbar-end { display: flex; align-items: center; gap: var(--space-3); margin-left: auto; }
+  .result-count { color: var(--text-3); font-size: 13px; font-variant-numeric: tabular-nums; }
 
   /* Form fields */
-  .field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); }
-  .field label { font-weight: 600; font-size: 12px; color: var(--c-text); }
-  .field .req { color: var(--c-danger); }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--space-4); }
+  .field label { font-weight: 600; font-size: 12.5px; color: var(--text-2); }
+  .field .req { color: var(--critical); }
+  .control { position: relative; display: flex; align-items: center; }
+  .control > svg { position: absolute; left: 11px; color: var(--text-3); pointer-events: none; }
   .field input, .field select, .field textarea {
-    border: 1px solid var(--c-border); border-radius: var(--radius-sm);
-    padding: 6px var(--space-2); background: #fff; min-height: 34px;
+    width: 100%; height: 40px; padding: 0 var(--space-3);
+    border: 1px solid var(--border-strong); border-radius: var(--r-md);
+    background: var(--surface); box-shadow: var(--shadow-xs);
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
-  .field textarea { resize: vertical; min-height: 70px; }
-  .field [aria-invalid="true"] { border-color: var(--c-danger); background: #fff8f8; }
-  .field-error { color: var(--c-danger); font-size: 12px; min-height: 0; }
+  .control > svg + input { padding-left: 34px; }
+  .field select { appearance: none; padding-right: 34px; cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-3) 50%), linear-gradient(135deg, var(--text-3) 50%, transparent 50%);
+    background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50%;
+    background-size: 5px 5px; background-repeat: no-repeat;
+  }
+  .field textarea { height: auto; min-height: 88px; padding: 10px var(--space-3); resize: vertical; }
+  .field input:hover, .field select:hover, .field textarea:hover { border-color: var(--text-3); }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: var(--brand-500); box-shadow: 0 0 0 4px rgba(58, 110, 232, 0.18);
+  }
+  .field [aria-invalid="true"] { border-color: var(--critical); box-shadow: 0 0 0 4px rgba(217, 45, 32, 0.12); }
+  .field-error { display: flex; align-items: center; gap: 6px; color: var(--critical); font-size: 12.5px; font-weight: 500; }
   .field-error:empty { display: none; }
-  .field-hint { color: var(--c-text-muted); font-size: 11px; }
+  .field-hint { color: var(--text-3); font-size: 12px; display: flex; justify-content: space-between; }
   .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
-  .form-actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
 
   /* =========================================================
      Board and columns
      ========================================================= */
+  main { padding: var(--space-5) 0 var(--space-7); }
   .board {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--space-3);
-    align-items: start;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4); align-items: start;
   }
   .column {
-    background: #e3e9f3;
-    border: 2px solid transparent;
-    border-radius: var(--radius-md);
+    --dot: var(--st-backlog);
+    background: var(--column);
+    border: 1.5px solid transparent; border-radius: var(--r-xl);
     padding: var(--space-3);
-    min-height: 240px;
-    transition: background-color 0.15s, border-color 0.15s;
+    min-height: 320px;
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
   }
+  .column[data-status="In Progress"] { --dot: var(--st-progress); }
+  .column[data-status="Blocked"]     { --dot: var(--st-blocked); }
+  .column[data-status="Done"]        { --dot: var(--st-done); }
   .column.drop-target {
-    background: var(--c-brand-100);
-    border-color: var(--c-brand-600);
-    border-style: dashed;
+    background: var(--brand-50);
+    border-color: var(--brand-500); border-style: dashed;
+    box-shadow: inset 0 0 0 4px rgba(58, 110, 232, 0.08);
   }
-  .column-head { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-1); }
-  .column-head h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--c-brand-900); }
+  .column-head {
+    display: flex; align-items: center; gap: var(--space-2);
+    padding: var(--space-1) var(--space-2) 0;
+  }
+  .column-head h2 { font-size: 14px; font-weight: 650; }
   .count-badge {
-    background: var(--c-brand-600); color: #fff; border-radius: var(--radius-pill);
-    font-size: 12px; font-weight: 700; padding: 0 var(--space-2); min-width: 24px; text-align: center;
+    margin-left: auto; min-width: 26px; padding: 1px var(--space-2);
+    border-radius: var(--r-pill); text-align: center;
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 12px; font-weight: 700; color: var(--text-2); font-variant-numeric: tabular-nums;
   }
-  .column-hint { margin: 0 0 var(--space-3); font-size: 12px; color: var(--c-text-muted); }
-  .card-list { display: flex; flex-direction: column; gap: var(--space-2); }
-  .empty { color: var(--c-text-muted); font-size: 12px; text-align: center; padding: var(--space-4) 0; border: 1px dashed var(--c-border); border-radius: var(--radius-sm); }
+  .column-hint { padding: 2px var(--space-2) 0; font-size: 12px; color: var(--text-3); }
+  .column-rule { height: 3px; margin: var(--space-3) var(--space-2); border-radius: var(--r-pill); background: var(--dot); opacity: 0.85; }
+  .card-list { display: flex; flex-direction: column; gap: var(--space-3); }
+  .empty {
+    display: grid; place-items: center; gap: var(--space-2);
+    padding: var(--space-6) var(--space-3); text-align: center;
+    border: 1.5px dashed var(--border-strong); border-radius: var(--r-lg);
+    color: var(--text-3); font-size: 12.5px;
+  }
 
   /* =========================================================
      Cards
      ========================================================= */
   .card {
-    background: var(--c-surface);
-    border-radius: var(--radius-sm);
-    border-left: 5px solid var(--c-medium);
-    box-shadow: var(--shadow-card);
-    padding: var(--space-2) var(--space-3);
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--medium);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-3) var(--space-4) var(--space-3) var(--space-4);
     cursor: grab;
+    transition: box-shadow 0.2s var(--ease), transform 0.2s var(--ease), border-color 0.2s;
   }
-  .card.dragging { opacity: 0.5; }
-  .card.prio-critical { border-left-color: var(--c-critical); }
-  .card.prio-high     { border-left-color: var(--c-high); }
-  .card.prio-medium   { border-left-color: var(--c-medium); }
-  .card.prio-low      { border-left-color: var(--c-low); }
+  .card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .card:active { cursor: grabbing; }
+  .card.dragging { opacity: 0.45; transform: rotate(1.5deg) scale(0.98); }
+  .card.prio-critical { border-left-color: var(--critical); }
+  .card.prio-high     { border-left-color: var(--high); }
+  .card.prio-medium   { border-left-color: var(--medium); }
+  .card.prio-low      { border-left-color: var(--low); }
 
-  .card-top { display: flex; align-items: center; gap: var(--space-2); }
-  .card-id { font-family: ui-monospace, Consolas, monospace; font-size: 11px; color: var(--c-text-muted); }
+  .card-top { display: flex; align-items: center; gap: var(--space-2); min-height: 28px; }
+  .card-id { font-family: var(--mono); font-size: 11px; color: var(--text-3); letter-spacing: 0.02em; }
   .badge-overdue {
-    background: var(--c-critical-bg); color: var(--c-critical);
-    border: 1px solid #f3b9b9; border-radius: var(--radius-pill);
-    font-size: 10px; font-weight: 700; padding: 0 6px; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 1px 7px; border-radius: var(--r-pill);
+    background: var(--critical-bg); color: var(--critical); border: 1px solid var(--critical-bd);
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
   }
-  .icon-btn {
-    margin-left: auto; border: 0; background: transparent; cursor: pointer;
-    width: 24px; height: 24px; border-radius: var(--radius-sm);
-    font-size: 18px; line-height: 1; color: var(--c-text-muted);
-  }
-  .icon-btn:hover { background: var(--c-critical-bg); color: var(--c-critical); }
-  .card-title { font-size: 14px; margin: var(--space-1) 0 2px; line-height: 1.3; word-wrap: break-word; }
+  .card-top .icon-btn { margin-left: auto; opacity: 0.6; }
+  .card:hover .card-top .icon-btn, .card-top .icon-btn:focus-visible { opacity: 1; }
+
+  .card-title { font-size: 14.5px; font-weight: 650; line-height: 1.35; letter-spacing: -0.005em; margin: 2px 0 4px; overflow-wrap: anywhere; }
   .card-desc {
-    margin: 0 0 var(--space-1); font-size: 12px; color: var(--c-text-muted);
+    font-size: 12.5px; color: var(--text-2); margin-bottom: var(--space-3);
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
-  .card-project { margin: 0 0 var(--space-1); font-size: 12px; color: var(--c-brand-700); font-weight: 600; }
-  .card-meta { display: flex; flex-wrap: wrap; gap: 2px var(--space-3); margin: 0 0 var(--space-2); font-size: 12px; }
-  .card-meta div { display: flex; gap: var(--space-1); }
-  .card-meta dt { color: var(--c-text-muted); }
-  .card-meta dd { margin: 0; }
-  .card-meta .is-late { color: var(--c-critical); font-weight: 600; }
-  .card-tags { display: flex; flex-wrap: wrap; gap: var(--space-1); align-items: center; }
+  .card-project { display: flex; align-items: center; gap: var(--space-2); font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: var(--space-3); }
+  .project-swatch { width: 10px; height: 10px; border-radius: 3px; background: var(--swatch); }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: var(--space-3); }
   .pill {
-    border-radius: var(--radius-pill); font-size: 11px; font-weight: 700;
-    padding: 1px var(--space-2); border: 1px solid currentColor;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 8px; border-radius: var(--r-pill); border: 1px solid;
+    font-size: 11.5px; font-weight: 650;
   }
-  .pill-critical { color: var(--c-critical); background: var(--c-critical-bg); }
-  .pill-high     { color: var(--c-high);     background: var(--c-high-bg); }
-  .pill-medium   { color: var(--c-medium);   background: var(--c-medium-bg); }
-  .pill-low      { color: var(--c-low);      background: var(--c-low-bg); }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .pill-critical { color: var(--critical); background: var(--critical-bg); border-color: var(--critical-bd); }
+  .pill-high     { color: var(--high);     background: var(--high-bg);     border-color: var(--high-bd); }
+  .pill-medium   { color: var(--medium);   background: var(--medium-bg);   border-color: var(--medium-bd); }
+  .pill-low      { color: var(--low);      background: var(--low-bg);      border-color: var(--low-bd); }
   .tag {
-    font-size: 11px; padding: 1px var(--space-2); border-radius: var(--radius-sm);
-    background: var(--c-brand-50); color: var(--c-brand-900); border: 1px solid var(--c-brand-100);
+    padding: 2px 8px; border-radius: var(--r-sm);
+    background: var(--surface-2); border: 1px solid var(--border);
+    font-size: 11.5px; color: var(--text-2);
   }
-  .card-actions { margin-top: var(--space-2); display: flex; flex-wrap: wrap; gap: var(--space-1); align-items: center; }
+
+  .card-foot {
+    display: flex; align-items: center; gap: var(--space-2);
+    padding-top: var(--space-3); border-top: 1px solid var(--border);
+  }
+  .card-foot dl { display: contents; }
+  .card-foot dt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .card-foot dd { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-2); min-width: 0; }
+  .assignee-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .avatar {
+    display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--av); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.02em;
+    box-shadow: 0 0 0 2px var(--surface);
+  }
+  .due { margin-left: auto; white-space: nowrap; }
+  .due.is-late { color: var(--critical); font-weight: 650; }
+  .due svg { color: var(--text-3); }
+  .due.is-late svg { color: currentColor; }
+  .card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: var(--space-3); }
+  .move-btn { color: var(--brand-600); }
+  @media (prefers-color-scheme: dark) { .move-btn { color: var(--medium); } }
   .move-menu {
-    display: flex; flex-wrap: wrap; gap: var(--space-1);
-    width: 100%; padding: var(--space-2); margin-top: var(--space-1);
-    background: var(--c-brand-50); border-radius: var(--radius-sm);
+    display: flex; flex-wrap: wrap; gap: 6px; width: 100%;
+    margin-top: var(--space-2); padding: var(--space-3);
+    background: var(--brand-50); border: 1px solid var(--brand-100); border-radius: var(--r-md);
+    animation: pop-in 0.16s var(--ease);
   }
-  .move-menu span { width: 100%; font-size: 11px; color: var(--c-text-muted); }
+  .move-menu-label { width: 100%; font-size: 11.5px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
+  .move-menu .btn { gap: 6px; }
   .confirm {
     display: flex; align-items: center; gap: var(--space-2);
-    margin-top: var(--space-2); padding: var(--space-2);
-    background: var(--c-critical-bg); border-radius: var(--radius-sm);
-    font-size: 12px; font-weight: 600; color: var(--c-critical);
+    margin-top: var(--space-3); padding: var(--space-2) var(--space-3);
+    background: var(--critical-bg); border: 1px solid var(--critical-bd); border-radius: var(--r-md);
+    font-size: 13px; font-weight: 650; color: var(--critical);
+    animation: pop-in 0.16s var(--ease);
   }
-  .btn-danger { background: var(--c-danger); color: #fff; }
+  .confirm span { margin-right: auto; }
+  @keyframes pop-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+  /* =========================================================
+     Add Task drawer
+     ========================================================= */
+  .scrim {
+    position: fixed; inset: 0; z-index: 40;
+    background: rgba(7, 18, 40, 0.35); backdrop-filter: blur(2px);
+    animation: fade-in 0.2s ease-out;
+  }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 50;
+    width: min(440px, 100vw);
+    display: flex; flex-direction: column;
+    background: var(--surface); box-shadow: var(--shadow-xl);
+    border-left: 1px solid var(--border);
+    animation: slide-in 0.28s var(--ease);
+  }
+  .drawer[hidden], .scrim[hidden] { display: none; }
+  .drawer-head {
+    display: flex; align-items: flex-start; gap: var(--space-3);
+    padding: var(--space-5) var(--space-5) var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+  .drawer-head h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .drawer-head p { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+  .drawer-head .icon-btn { margin-left: auto; width: 34px; height: 34px; }
+  .drawer-head .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+  .drawer form { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .drawer-body { flex: 1; overflow-y: auto; padding: var(--space-5); }
+  .drawer-foot {
+    display: flex; justify-content: flex-end; gap: var(--space-2);
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--border); background: var(--surface-2);
+  }
+  .spinner {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.4); border-top-color: #fff;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slide-in { from { transform: translateX(32px); opacity: 0; } to { transform: none; opacity: 1; } }
 
   /* =========================================================
      Toasts
      ========================================================= */
   .toasts {
-    position: fixed; right: var(--space-4); bottom: var(--space-4);
-    display: flex; flex-direction: column; gap: var(--space-2);
-    z-index: 100; max-width: min(360px, calc(100vw - 32px));
+    position: fixed; left: 50%; bottom: var(--space-5); transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
+    z-index: 100; width: max-content; max-width: calc(100vw - 32px);
   }
   .toast {
-    background: var(--c-surface); border-left: 5px solid var(--c-brand-600);
-    box-shadow: var(--shadow-pop); border-radius: var(--radius-sm);
-    padding: var(--space-3) var(--space-4); font-size: 13px;
-    animation: toast-in 0.2s ease-out;
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: 10px var(--space-4) 10px var(--space-3);
+    border-radius: var(--r-pill);
+    background: #101828; color: #f2f4f7;
+    box-shadow: var(--shadow-xl); font-size: 13.5px; font-weight: 500;
+    animation: toast-in 0.25s var(--ease);
   }
-  .toast-success { border-left-color: var(--c-success); }
-  .toast-warning { border-left-color: var(--c-warning); background: #fffaf0; }
-  @keyframes toast-in { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .toast-icon { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--brand-500); color: #fff; }
+  .toast-success .toast-icon { background: var(--success); }
+  .toast-warning .toast-icon { background: var(--warning); }
+  @media (prefers-color-scheme: dark) { .toast { background: #f2f4f7; color: #101828; } }
+  @keyframes toast-in { from { transform: translateY(12px) scale(0.97); opacity: 0; } to { transform: none; opacity: 1; } }
 
   /* =========================================================
      Responsive
      ========================================================= */
-  @media (max-width: 1100px) {
-    .layout.sidebar-open { grid-template-columns: 1fr; }
-    .sidebar { position: static; }
+  @media (max-width: 1200px) {
+    .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 1024px) {
+    .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 767px) {
-    .app-header, .filters, .layout { padding-left: var(--space-4); padding-right: var(--space-4); }
-    .summary { margin-left: 0; }
+    .container { padding: 0 var(--space-4); }
+    .hero-title h1 { font-size: 24px; }
+    .progress-wrap { margin-left: 0; width: 100%; }
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kpi-value { font-size: 22px; }
+    .demo-chip { display: none; }
+    .wordmark-text span { display: none; }
+    .topbar .btn-white { margin-left: auto; }
+    .toolbar .field { min-width: 0; flex: 1 1 100%; }
+    .toolbar-end { width: 100%; justify-content: space-between; margin-left: 0; }
     .board { grid-template-columns: 1fr; }
     .column { min-height: 0; }
-    .filters .result-count { margin-left: 0; width: 100%; }
+    .toast { border-radius: var(--r-lg); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .toast, .column { animation: none; transition: none; }
+    *, *::before, *::after { animation-duration: 0.01ms; transition-duration: 0.01ms; }
+    .card:hover { transform: none; }
   }
 </style>
 </head>
 <body>
 
 <!-- =========================================================
-     Header: wordmark, live summary strip, Add Task toggle
+     Hero: top bar, page title, completion, live KPI strip
      ========================================================= -->
-<header class="app-header">
-  <div class="wordmark">
-    <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" focusable="false">
-      <rect x="2" y="4" width="7" height="20" rx="1.5" fill="#7fa7e6"/>
-      <rect x="10.5" y="4" width="7" height="13" rx="1.5" fill="#b9cff2"/>
-      <rect x="19" y="4" width="7" height="8" rx="1.5" fill="#ffffff"/>
-    </svg>
-    <div>
-      <h1>IT PMO</h1>
-      <small>Project board · demo / training tool</small>
+<header class="hero">
+  <div class="container">
+    <div class="topbar">
+      <div class="wordmark">
+        <span class="wordmark-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" focusable="false">
+            <rect x="1" y="2" width="5" height="16" rx="1.5" fill="#8fb1ff"/>
+            <rect x="7.5" y="2" width="5" height="10" rx="1.5" fill="#c6d6ff"/>
+            <rect x="14" y="2" width="5" height="6" rx="1.5" fill="#ffffff"/>
+          </svg>
+        </span>
+        <span class="wordmark-text">IT PMO<span>Delivery workspace</span></span>
+      </div>
+
+      <p class="demo-chip">
+        <span class="dot" aria-hidden="true"></span>
+        Demo data · nothing is saved · refresh resets the board
+      </p>
+
+      <button type="button" class="btn btn-white" id="toggle-form"
+              aria-expanded="false" aria-controls="task-drawer">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Add Task
+      </button>
     </div>
+
+    <div class="hero-head">
+      <div class="hero-title">
+        <h1>Portfolio Kanban</h1>
+        <p>Technology change portfolio for a fictitious bank — demo &amp; training board.</p>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Portfolio completion</span><strong id="progress-text">0%</strong></div>
+        <div class="progress" role="progressbar" aria-label="Portfolio completion" aria-valuemin="0" aria-valuemax="100" id="progress">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="kpis" id="summary" aria-label="Board summary"></ul>
   </div>
-
-  <ul class="summary" id="summary" aria-label="Board summary"></ul>
-
-  <button type="button" class="btn btn-light" id="toggle-form"
-          aria-expanded="false" aria-controls="task-sidebar">
-    <span aria-hidden="true">+</span> Add Task
-  </button>
-
-  <p class="demo-note">
-    <span aria-hidden="true">ⓘ</span>
-    Demo data only — nothing is saved. Refreshing the page resets the board to the sample tasks.
-  </p>
 </header>
 
-<!-- =========================================================
-     Filter bar (client-side only)
-     ========================================================= -->
-<section class="filters" aria-label="Filter tasks">
-  <div class="field">
-    <label for="filter-project">Project</label>
-    <select id="filter-project">
-      <option value="">All projects</option>
-    </select>
-  </div>
-  <div class="field">
-    <label for="filter-assignee">Assignee contains</label>
-    <input type="search" id="filter-assignee" placeholder="e.g. Tan" autocomplete="off">
-  </div>
-  <div class="field">
-    <label for="filter-priority">Priority</label>
-    <select id="filter-priority">
-      <option value="">All priorities</option>
-    </select>
-  </div>
-  <button type="button" class="btn btn-ghost" id="clear-filters">Clear filters</button>
-  <p class="result-count" id="result-count" aria-live="polite"></p>
-</section>
-
-<main class="layout" id="layout">
+<div class="container">
+  <!-- =========================================================
+       Filter toolbar (client-side only)
+       ========================================================= -->
+  <section class="toolbar" aria-label="Filter tasks">
+    <div class="field field-grow">
+      <label for="filter-assignee">Assignee</label>
+      <div class="control">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input type="search" id="filter-assignee" placeholder="Search by name…" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <label for="filter-project">Project</label>
+      <select id="filter-project">
+        <option value="">All projects</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="filter-priority">Priority</label>
+      <select id="filter-priority">
+        <option value="">All priorities</option>
+      </select>
+    </div>
+    <div class="toolbar-end">
+      <p class="result-count" id="result-count" aria-live="polite"></p>
+      <button type="button" class="btn btn-secondary" id="clear-filters">Reset</button>
+    </div>
+  </section>
 
   <!-- =========================================================
-       Add Task form (sidebar, toggled from header)
+       Kanban board (rendered by renderBoard())
        ========================================================= -->
-  <aside class="sidebar" id="task-sidebar" hidden aria-labelledby="form-heading">
-    <div class="sidebar-head">
-      <h2 id="form-heading">Add Task</h2>
-      <button type="button" class="icon-btn" id="close-form" aria-label="Close Add Task panel">×</button>
-    </div>
+  <main>
+    <h2 class="visually-hidden">Board</h2>
+    <div class="board" id="board"></div>
+  </main>
+</div>
 
-    <form id="task-form" novalidate>
+<!-- =========================================================
+     Add Task drawer (slide-over form)
+     ========================================================= -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="task-drawer" hidden aria-labelledby="form-heading">
+  <div class="drawer-head">
+    <div>
+      <h2 id="form-heading">New task</h2>
+      <p>Adds a card to the board and emails the PMO.</p>
+    </div>
+    <button type="button" class="icon-btn" id="close-form" aria-label="Close Add Task panel">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M4.5 4.5l9 9M13.5 4.5l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <form id="task-form" novalidate>
+    <div class="drawer-body">
       <div class="field">
-        <label for="f-title">Task Title <span class="req" aria-hidden="true">*</span></label>
-        <input type="text" id="f-title" name="title" maxlength="80" required aria-describedby="err-title">
+        <label for="f-title">Task title <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="f-title" name="title" maxlength="80" required placeholder="e.g. Upgrade payment gateway TLS certificates" aria-describedby="err-title">
         <span class="field-error" id="err-title"></span>
       </div>
 
       <div class="field">
         <label for="f-description">Description</label>
-        <textarea id="f-description" name="description" maxlength="500" aria-describedby="hint-description err-description"></textarea>
-        <span class="field-hint" id="hint-description">Optional, up to 500 characters.</span>
+        <textarea id="f-description" name="description" maxlength="500" placeholder="Context, scope, dependencies…" aria-describedby="hint-description err-description"></textarea>
+        <span class="field-hint" id="hint-description"><span>Optional</span><span id="desc-count">0 / 500</span></span>
         <span class="field-error" id="err-description"></span>
       </div>
 
-      <div class="field">
-        <label for="f-project">Project / Workstream <span class="req" aria-hidden="true">*</span></label>
-        <select id="f-project" name="project" required aria-describedby="err-project">
-          <option value="">Select a project…</option>
-        </select>
-        <span class="field-error" id="err-project"></span>
-      </div>
-
-      <div class="field">
-        <label for="f-category">Category <span class="req" aria-hidden="true">*</span></label>
-        <select id="f-category" name="category" required aria-describedby="err-category">
-          <option value="">Select a category…</option>
-        </select>
-        <span class="field-error" id="err-category"></span>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-project">Project / Workstream <span class="req" aria-hidden="true">*</span></label>
+          <select id="f-project" name="project" required aria-describedby="err-project">
+            <option value="">Select…</option>
+          </select>
+          <span class="field-error" id="err-project"></span>
+        </div>
+        <div class="field">
+          <label for="f-category">Category <span class="req" aria-hidden="true">*</span></label>
+          <select id="f-category" name="category" required aria-describedby="err-category">
+            <option value="">Select…</option>
+          </select>
+          <span class="field-error" id="err-category"></span>
+        </div>
       </div>
 
       <div class="field">
         <label for="f-assignee">Assignee <span class="req" aria-hidden="true">*</span></label>
-        <input type="text" id="f-assignee" name="assignee" maxlength="60" required autocomplete="off" aria-describedby="err-assignee">
+        <input type="text" id="f-assignee" name="assignee" maxlength="60" required autocomplete="off" placeholder="Full name" aria-describedby="err-assignee">
         <span class="field-error" id="err-assignee"></span>
       </div>
 
@@ -422,23 +621,18 @@
       </div>
 
       <div class="field">
-        <label for="f-dueDate">Due Date <span class="req" aria-hidden="true">*</span></label>
+        <label for="f-dueDate">Due date <span class="req" aria-hidden="true">*</span></label>
         <input type="date" id="f-dueDate" name="dueDate" required aria-describedby="err-dueDate">
         <span class="field-error" id="err-dueDate"></span>
       </div>
+    </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary" id="submit-btn">Add Task</button>
-        <button type="reset" class="btn btn-ghost">Clear</button>
-      </div>
-    </form>
-  </aside>
-
-  <!-- =========================================================
-       Kanban board (rendered by renderBoard())
-       ========================================================= -->
-  <div class="board" id="board" aria-label="Kanban board"></div>
-</main>
+    <div class="drawer-foot">
+      <button type="reset" class="btn btn-text">Clear</button>
+      <button type="submit" class="btn btn-primary" id="submit-btn">Add task</button>
+    </div>
+  </form>
+</aside>
 
 <!-- Toast region: announced politely to screen readers -->
 <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
@@ -471,16 +665,36 @@ const COLUMNS = [
   { status: "Done",        hint: "Completed / closed" },
 ];
 const STATUSES = COLUMNS.map(c => c.status);
+const STATUS_DOT = {
+  "Backlog": "var(--st-backlog)", "In Progress": "var(--st-progress)",
+  "Blocked": "var(--st-blocked)", "Done": "var(--st-done)",
+};
 const PROJECTS = [
   "Core Banking Upgrade", "Digital Channels", "Cybersecurity Uplift",
   "Data & Analytics", "Infrastructure & Cloud", "Vendor Management",
 ];
+const PROJECT_COLOR = {
+  "Core Banking Upgrade": "#3a6ee8", "Digital Channels": "#8b5cf6", "Cybersecurity Uplift": "#e5484d",
+  "Data & Analytics": "#0ea5a4", "Infrastructure & Cloud": "#f59e0b", "Vendor Management": "#64748b",
+};
 const CATEGORIES = [
   "Application Development", "Infrastructure", "Cybersecurity",
   "Data", "Compliance", "Vendor",
 ];
 const PRIORITIES = ["Critical", "High", "Medium", "Low"];
 const PRIORITY_RANK = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+const AVATAR_COLORS = ["#2257c9", "#7c3aed", "#0e9384", "#c4320a", "#b42373", "#475467", "#15803d", "#a15c07"];
+
+/* Static inline icons (trusted markup, never user data) */
+const ICON = {
+  calendar: '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="2" y="3" width="12" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  close: '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  alert: '<svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1.5 15 14H1z" fill="currentColor"/><path d="M8 6v3.5M8 11.5v.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  inbox: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 13h5l1.5 3h5L16 13h5M5 5h14l2 8v6H3v-6z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+  check: '<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  info: '<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 7v5M8 4v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  warn: '<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 3.5v5.5M8 12v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+};
 
 /* =========================================================
    State — the single source of truth (memory only, no storage)
@@ -525,7 +739,10 @@ function addDays(offset) {
 
 function formatDate(iso) {
   const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  const date = new Date(y, m - 1, d);
+  const opts = { day: "numeric", month: "short" };
+  if (y !== new Date().getFullYear()) opts.year = "numeric";
+  return date.toLocaleDateString("en-GB", opts);
 }
 
 function isOverdue(task) {
@@ -540,6 +757,18 @@ function nextTaskId() {
 
 function slug(value) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+function initials(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const letters = parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : (parts[0] || "?").slice(0, 2);
+  return letters.toUpperCase();
+}
+
+function avatarColor(name) {
+  let hash = 0;
+  for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
 }
 
 function optionsHtml(values, selected) {
@@ -588,21 +817,22 @@ function renderCard(task) {
   const confirming = state.ui.confirmDeleteId === task.id;
   const id = escapeHtml(task.id);
   const title = escapeHtml(task.title);
+  const swatch = PROJECT_COLOR[task.project] || "var(--text-3)";
 
   const moveMenu = menuOpen ? `
     <div class="move-menu" role="group" aria-label="Move ${id} to column">
-      <span>Move to:</span>
+      <span class="move-menu-label">Move to</span>
       ${STATUSES.filter(s => s !== task.status).map(s =>
-        `<button type="button" class="btn btn-ghost btn-sm" data-action="move-to" data-status="${escapeHtml(s)}">${escapeHtml(s)}</button>`
+        `<button type="button" class="btn btn-secondary btn-sm" data-action="move-to" data-status="${escapeHtml(s)}"><span class="status-dot" style="--dot:${STATUS_DOT[s]}" aria-hidden="true"></span>${escapeHtml(s)}</button>`
       ).join("")}
-      <button type="button" class="btn btn-sm" data-action="move-cancel">Cancel</button>
+      <button type="button" class="btn btn-text btn-sm" data-action="move-cancel">Cancel</button>
     </div>` : "";
 
   const confirm = confirming ? `
     <div class="confirm" role="group" aria-label="Confirm deletion of ${id}">
-      Delete?
+      <span>Delete?</span>
       <button type="button" class="btn btn-danger btn-sm" data-action="delete-yes">Yes</button>
-      <button type="button" class="btn btn-ghost btn-sm" data-action="delete-no">No</button>
+      <button type="button" class="btn btn-secondary btn-sm" data-action="delete-no">No</button>
     </div>` : "";
 
   return `
@@ -610,22 +840,26 @@ function renderCard(task) {
              aria-label="${id}: ${title}">
       <div class="card-top">
         <span class="card-id">${id}</span>
-        ${overdue ? '<span class="badge-overdue">Overdue</span>' : ""}
-        <button type="button" class="icon-btn" data-action="delete-ask" aria-label="Delete task ${id}">×</button>
+        ${overdue ? `<span class="badge-overdue">${ICON.alert}Overdue</span>` : ""}
+        <button type="button" class="icon-btn" data-action="delete-ask" aria-label="Delete task ${id}">${ICON.close}</button>
       </div>
       <h3 class="card-title">${title}</h3>
       ${task.description ? `<p class="card-desc">${escapeHtml(task.description)}</p>` : ""}
-      <p class="card-project">${escapeHtml(task.project)}</p>
-      <dl class="card-meta">
-        <div><dt>Assignee</dt><dd>${escapeHtml(task.assignee)}</dd></div>
-        <div><dt>Due</dt><dd class="${overdue ? "is-late" : ""}"><time datetime="${escapeHtml(task.dueDate)}">${escapeHtml(formatDate(task.dueDate))}</time></dd></div>
-      </dl>
+      <p class="card-project"><span class="project-swatch" style="--swatch:${swatch}" aria-hidden="true"></span>${escapeHtml(task.project)}</p>
       <div class="card-tags">
         <span class="pill pill-${p}">${escapeHtml(task.priority)}</span>
         <span class="tag">${escapeHtml(task.category)}</span>
       </div>
+      <div class="card-foot">
+        <dl>
+          <dt>Assignee</dt>
+          <dd><span class="avatar" style="--av:${avatarColor(task.assignee)}" aria-hidden="true">${escapeHtml(initials(task.assignee))}</span><span class="assignee-name">${escapeHtml(task.assignee)}</span></dd>
+          <dt>Due date</dt>
+          <dd class="due${overdue ? " is-late" : ""}">${ICON.calendar}<time datetime="${escapeHtml(task.dueDate)}">${escapeHtml(formatDate(task.dueDate))}</time></dd>
+        </dl>
+      </div>
       <div class="card-actions">
-        <button type="button" class="btn btn-ghost btn-sm" data-action="move-toggle"
+        <button type="button" class="btn btn-text btn-sm move-btn" data-action="move-toggle"
                 aria-expanded="${menuOpen}" aria-label="Move task ${id} to another column">Move ▸</button>
         ${moveMenu}
       </div>
@@ -638,13 +872,20 @@ function renderSummary() {
   state.tasks.forEach(t => { counts[t.status] += 1; });
   const overdue = state.tasks.filter(isOverdue).length;
   const items = [
-    ["Total", state.tasks.length, ""],
-    ...STATUSES.map(s => [s, counts[s], ""]),
-    ["Overdue", overdue, "is-overdue"],
+    { label: "Total tasks", n: state.tasks.length, dot: "rgba(255,255,255,0.7)" },
+    ...STATUSES.map(s => ({ label: s, n: counts[s], dot: STATUS_DOT[s] })),
+    { label: "Overdue", n: overdue, dot: "#ff6b5e", alert: overdue > 0 },
   ];
-  document.getElementById("summary").innerHTML = items.map(([label, n, cls]) =>
-    `<li class="${cls}"><strong>${n}</strong>${escapeHtml(label)}</li>`
-  ).join("");
+  document.getElementById("summary").innerHTML = items.map(k => `
+    <li class="kpi${k.alert ? " is-alert" : ""}">
+      <span class="kpi-label"><span class="status-dot" style="--dot:${k.dot}" aria-hidden="true"></span>${escapeHtml(k.label)}</span>
+      <strong class="kpi-value">${k.n}</strong>
+    </li>`).join("");
+
+  const pct = state.tasks.length ? Math.round((counts.Done / state.tasks.length) * 100) : 0;
+  document.getElementById("progress-bar").style.width = `${pct}%`;
+  document.getElementById("progress-text").textContent = `${pct}%`;
+  document.getElementById("progress").setAttribute("aria-valuenow", String(pct));
 }
 
 function renderBoard() {
@@ -659,18 +900,20 @@ function renderBoard() {
     return `
       <section class="column" data-status="${escapeHtml(col.status)}" aria-labelledby="${headingId}">
         <div class="column-head">
+          <span class="status-dot" aria-hidden="true"></span>
           <h2 id="${headingId}">${escapeHtml(col.status)}</h2>
           <span class="count-badge" aria-label="${cards.length} tasks">${cards.length}</span>
         </div>
         <p class="column-hint">${escapeHtml(col.hint)}</p>
+        <div class="column-rule" aria-hidden="true"></div>
         <div class="card-list">
-          ${cards.length ? cards.map(renderCard).join("") : `<p class="empty">${filtered ? "No matching tasks" : "Drop tasks here"}</p>`}
+          ${cards.length ? cards.map(renderCard).join("") : `<p class="empty">${ICON.inbox}${filtered ? "No matching tasks" : "Drop tasks here"}</p>`}
         </div>
       </section>`;
   }).join("");
 
   document.getElementById("result-count").textContent =
-    filtered ? `Showing ${visible.length} of ${state.tasks.length} tasks` : `${state.tasks.length} tasks`;
+    filtered ? `Showing ${visible.length} of ${state.tasks.length}` : `${state.tasks.length} tasks`;
 
   renderSummary();
   restoreFocus();
@@ -734,7 +977,13 @@ function showToast(message, type = "info") {
   const region = document.getElementById("toasts");
   const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
-  toast.textContent = message;   // textContent: never interpreted as HTML
+  const icon = document.createElement("span");
+  icon.className = "toast-icon";
+  icon.setAttribute("aria-hidden", "true");
+  icon.innerHTML = type === "success" ? ICON.check : type === "warning" ? ICON.warn : ICON.info;
+  const text = document.createElement("span");
+  text.textContent = message;   // textContent: never interpreted as HTML
+  toast.append(icon, text);
   region.appendChild(toast);
   setTimeout(() => toast.remove(), TOAST_DURATION_MS);
 }
@@ -789,11 +1038,11 @@ function validateTask(data) {
   if (!title) errors.title = "Task title is required.";
   else if (title.length > 80) errors.title = "Title must be 80 characters or fewer.";
   if (data.description.length > 500) errors.description = "Description must be 500 characters or fewer.";
-  if (!PROJECTS.includes(data.project)) errors.project = "Please choose a project / workstream.";
-  if (!CATEGORIES.includes(data.category)) errors.category = "Please choose a category.";
+  if (!PROJECTS.includes(data.project)) errors.project = "Choose a project / workstream.";
+  if (!CATEGORIES.includes(data.category)) errors.category = "Choose a category.";
   if (!data.assignee.trim()) errors.assignee = "Assignee is required.";
-  if (!PRIORITIES.includes(data.priority)) errors.priority = "Please choose a priority.";
-  if (!STATUSES.includes(data.status)) errors.status = "Please choose a status.";
+  if (!PRIORITIES.includes(data.priority)) errors.priority = "Choose a priority.";
+  if (!STATUSES.includes(data.status)) errors.status = "Choose a status.";
   if (!data.dueDate) errors.dueDate = "Due date is required.";
   else if (!/^\d{4}-\d{2}-\d{2}$/.test(data.dueDate)) errors.dueDate = "Enter a valid date.";
   else if (data.dueDate < todayISO()) errors.dueDate = "Due date cannot be in the past.";
@@ -810,11 +1059,16 @@ function showFormErrors(errors) {
   });
 }
 
+function updateDescCount() {
+  const len = document.getElementById("f-description").value.length;
+  document.getElementById("desc-count").textContent = `${len} / 500`;
+}
+
 function setSending(isSending) {
   state.sending = isSending;
   const btn = document.getElementById("submit-btn");
   btn.disabled = isSending;
-  btn.textContent = isSending ? "Sending…" : "Add Task";
+  btn.innerHTML = isSending ? '<span class="spinner" aria-hidden="true"></span>Sending…' : "Add task";
 }
 
 async function handleSubmit(event) {
@@ -835,6 +1089,7 @@ async function handleSubmit(event) {
   const task = addTask(data);
   form.reset();
   showFormErrors({});
+  updateDescCount();
   showToast(`Task ${task.id} added to ${task.status}`, "success");
 
   setSending(true);
@@ -848,12 +1103,12 @@ async function handleSubmit(event) {
   }
 }
 
-function toggleSidebar(open) {
-  const sidebar = document.getElementById("task-sidebar");
+function toggleDrawer(open) {
+  const drawer = document.getElementById("task-drawer");
   const btn = document.getElementById("toggle-form");
-  sidebar.hidden = !open;
+  drawer.hidden = !open;
+  document.getElementById("scrim").hidden = !open;
   btn.setAttribute("aria-expanded", String(open));
-  document.getElementById("layout").classList.toggle("sidebar-open", open);
   if (open) document.getElementById("f-title").focus();
   else btn.focus();
 }
@@ -993,11 +1248,16 @@ function init() {
 
   const form = document.getElementById("task-form");
   form.addEventListener("submit", handleSubmit);
-  form.addEventListener("reset", () => showFormErrors({}));
+  form.addEventListener("reset", () => { showFormErrors({}); setTimeout(updateDescCount); });
+  document.getElementById("f-description").addEventListener("input", updateDescCount);
 
-  const sidebar = document.getElementById("task-sidebar");
-  document.getElementById("toggle-form").addEventListener("click", () => toggleSidebar(sidebar.hidden));
-  document.getElementById("close-form").addEventListener("click", () => toggleSidebar(false));
+  const drawer = document.getElementById("task-drawer");
+  document.getElementById("toggle-form").addEventListener("click", () => toggleDrawer(drawer.hidden));
+  document.getElementById("close-form").addEventListener("click", () => toggleDrawer(false));
+  document.getElementById("scrim").addEventListener("click", () => toggleDrawer(false));
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && !drawer.hidden) toggleDrawer(false);
+  });
 
   renderBoard();
 }
