@@ -17,6 +17,8 @@ A single-page Kanban board for tracking IT project-management-office tasks, buil
 
 ![IT PMO Kanban v2 screenshot](docs/screenshot-v2.png)
 
+**Design mock (v3):** https://arjunramanjanappa.github.io/IT-training/v3/
+
 ## Features
 
 - Four columns: **Backlog**, **In Progress**, **Blocked** and **Done**, preloaded with sample IT tasks
@@ -38,6 +40,10 @@ A single-page Kanban board for tracking IT project-management-office tasks, buil
 - Keyboard shortcuts: **N** for a new task, **/** to search by assignee, **Esc** to close panels and menus
 - Larger touch targets on phones and tablets, a skip-to-board link, and reduced motion when your system asks for it
 - Same features and sample data as the original
+
+### v3 design mock
+
+`v3/index.html` is a visual concept built with the [high-end-visual-design](https://github.com/leonxlnx/taste-skill) skill: a dark, glassy one-page overview with a floating navigation bar, a full-screen menu, a dashboard of mixed-size summary cards and a drag-and-drop board. It is a mock, not a full replacement: it uses the same sample tasks but has no Add Task form, filters or email notifications. Dragging a card between lanes updates the summary cards.
 
 ## How to install
 
@@ -70,7 +76,7 @@ In `index.html`, set `FORMSUBMIT_ENDPOINT` to `https://formsubmit.co/ajax/<your-
 
 ## Deployment
 
-Every push to `main` runs the [`pages.yml`](.github/workflows/pages.yml) GitHub Actions workflow. The **build** job checks that the site entry point exists and packages only the site files (`index.html` and `v2/index.html`) as a Pages artifact; the **deploy** job then publishes that artifact to GitHub Pages using `actions/deploy-pages`. Pull requests run the build job only, without deploying, and the workflow can also be started manually from the Actions tab.
+Every push to `main` runs the [`pages.yml`](.github/workflows/pages.yml) GitHub Actions workflow. The **build** job checks that the site entry point exists and packages only the site files (`index.html`, `v2/index.html` and `v3/index.html`) as a Pages artifact; the **deploy** job then publishes that artifact to GitHub Pages using `actions/deploy-pages`. Pull requests run the build job only, without deploying, and the workflow can also be started manually from the Actions tab.
 
 ## Project structure
 
@@ -86,5 +92,7 @@ Every push to `main` runs the [`pages.yml`](.github/workflows/pages.yml) GitHub 
 ├── index.html          # The whole app: markup, styles and script
 ├── v2/
 │   └── index.html      # Redesigned version of the board
+├── v3/
+│   └── index.html      # Design mock (dark, glassy concept)
 └── README.md
 ```
