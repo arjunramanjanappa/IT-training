@@ -1,10 +1,11 @@
-# Deploys the static site (index.html) to GitHub Pages on every push to main.
-# One-time setup: repo Settings > Pages > Build and deployment > Source = "GitHub Actions".
+# Builds the static site (index.html) and deploys it to GitHub Pages on every push to main.
+# Pull requests run the build job only (no deploy).
 name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -14,32 +15,41 @@ permissions:
 
 # Only one deployment at a time; let an in-progress deploy finish.
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Check site entry point
+        run: test -s index.html
+
+      - name: Prepare site (site files only)
+        run: |
+          mkdir _site
+          cp index.html _site/
+
+      - name: Configure Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
   deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Prepare site
-        run: |
-          mkdir _site
-          cp index.html _site/
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
